@@ -23,7 +23,8 @@ using namespace Aws::Utils;
 
 CreatePlayerSessionsRequest::CreatePlayerSessionsRequest() : 
     m_gameSessionIdHasBeenSet(false),
-    m_playerIdsHasBeenSet(false)
+    m_playerIdsHasBeenSet(false),
+    m_playerDataMapHasBeenSet(false)
 {
 }
 
@@ -48,6 +49,17 @@ Aws::String CreatePlayerSessionsRequest::SerializePayload() const
 
   }
 
+  if(m_playerDataMapHasBeenSet)
+  {
+   JsonValue playerDataMapJsonMap;
+   for(auto& playerDataMapItem : m_playerDataMap)
+   {
+     playerDataMapJsonMap.WithString(playerDataMapItem.first, playerDataMapItem.second);
+   }
+   payload.WithObject("PlayerDataMap", std::move(playerDataMapJsonMap));
+
+  }
+
   return payload.WriteReadable();
 }
 
@@ -58,6 +70,7 @@ Aws::Http::HeaderValueCollection CreatePlayerSessionsRequest::GetRequestSpecific
   return headers;
 
 }
+
 
 
 

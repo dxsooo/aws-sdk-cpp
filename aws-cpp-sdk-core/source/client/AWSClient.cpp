@@ -50,9 +50,26 @@ static const int SUCCESS_RESPONSE_MIN = 200;
 static const int SUCCESS_RESPONSE_MAX = 299;
 
 static const char* AWS_CLIENT_LOG_TAG = "AWSClient";
-static const std::chrono::minutes FOUR_MINUTES = std::chrono::minutes(4); 
+//4 Minutes
+static const std::chrono::milliseconds TIME_DIFF_MAX = std::chrono::milliseconds(240000); 
+//-4 Minutes
+static const std::chrono::milliseconds TIME_DIF_MIN = std::chrono::milliseconds(-240000);
 
 std::atomic<int> AWSClient::s_refCount(0);
+
+static CoreErrors GuessBodylessErrorType(Aws::Http::HttpResponseCode responseCode)
+{
+    switch (responseCode)
+    {
+    case HttpResponseCode::FORBIDDEN:
+    case HttpResponseCode::UNAUTHORIZED:
+        return CoreErrors::ACCESS_DENIED;
+    case HttpResponseCode::NOT_FOUND:
+        return CoreErrors::RESOURCE_NOT_FOUND;
+    default:
+        return CoreErrors::UNKNOWN;
+    }    
+}
 
 void AWSClient::InitializeGlobalStatics()
 {
@@ -129,9 +146,9 @@ HttpResponseOutcome AWSClient::AttemptExhaustively(const Aws::String& uri,
     for (long retries = 0;; retries++)
     {
         HttpResponseOutcome outcome = AttemptOneRequest(uri, request, method);
-        if (outcome.IsSuccess() || !m_retryStrategy->ShouldRetry(outcome.GetError(), retries))
+        if (outcome.IsSuccess())
         {
-            AWS_LOGSTREAM_TRACE(AWS_CLIENT_LOG_TAG, "Request was either successful, or we are now out of retries.");
+            AWS_LOGSTREAM_TRACE(AWS_CLIENT_LOG_TAG, "Request successful returning.");
             return outcome;
         }
         else if(!m_httpClient->IsRequestProcessingEnabled())
@@ -141,50 +158,46 @@ HttpResponseOutcome AWSClient::AttemptExhaustively(const Aws::String& uri,
         }
         else
         {
-            auto errorType = outcome.GetError().GetErrorType();
-            //detect clock skew and try to correct.
-            if (errorType == CoreErrors::REQUEST_TIME_TOO_SKEWED || errorType == CoreErrors::REQUEST_EXPIRED 
-                || errorType == CoreErrors::INVALID_SIGNATURE || errorType == CoreErrors::SIGNATURE_DOES_NOT_MATCH)
+            long sleepMillis = m_retryStrategy->CalculateDelayBeforeNextRetry(outcome.GetError(), retries);
+
+            //detect clock skew and try to correct.            
+            AWS_LOGSTREAM_WARN(AWS_CLIENT_LOG_TAG, "If the signature check failed. This could be because of a time skew. Attempting to adjust the signer.");
+            const Http::HeaderValueCollection& headers = outcome.GetError().GetResponseHeaders();
+            auto awsDateHeaderIter = headers.find(StringUtils::ToLower(Http::AWS_DATE_HEADER));
+            auto dateHeaderIter = headers.find(StringUtils::ToLower(Http::DATE_HEADER));
+
+            DateTime serverTime;
+            if (awsDateHeaderIter != headers.end())
             {
-                AWS_LOGSTREAM_WARN(AWS_CLIENT_LOG_TAG, "Signature check failed. This could be because of a time skew. Attempting to adjust the signer.");
-                const Http::HeaderValueCollection& headers = outcome.GetError().GetResponseHeaders();
-                auto awsDateHeaderIter = headers.find(StringUtils::ToLower(Http::AWS_DATE_HEADER));
-                auto dateHeaderIter = headers.find(StringUtils::ToLower(Http::DATE_HEADER));
-
-                DateTime serverTime;
-                if (awsDateHeaderIter != headers.end())
-                {
-                    serverTime = DateTime(awsDateHeaderIter->second.c_str(), DateFormat::RFC822);
-                }
-                else if (dateHeaderIter != headers.end())
-                {
-                    serverTime = DateTime(dateHeaderIter->second.c_str(), DateFormat::RFC822);
-                }
-                else
-                {
-                    AWS_LOGSTREAM_ERROR(AWS_CLIENT_LOG_TAG, "Clock Skew detected, but a date header was not found in the response.");
-                    return outcome;
-                }
-
-                AWS_LOGSTREAM_DEBUG(AWS_CLIENT_LOG_TAG, "Server time is " << serverTime.ToGmtString(DateFormat::RFC822) << ", while client time is " << DateTime::Now().ToGmtString(DateFormat::RFC822));
-                auto diff = DateTime::Diff(serverTime, m_signer->GetSigningTimestamp());
-                //only try again if clock skew was the cause of the error.
-                if(diff >= FOUR_MINUTES)
-                {
-                    AWS_LOGSTREAM_INFO(AWS_CLIENT_LOG_TAG, "Computed time difference as " << diff.count() << " milliseconds. This is more than 4 minutes. Adjusting signer with the skew.");
-                    m_signer->SetClockSkew(diff);
-                    auto newError = AWSError<CoreErrors>(
-                        outcome.GetError().GetErrorType(), outcome.GetError().GetExceptionName(), outcome.GetError().GetMessage(), true);
-                    newError.SetResponseHeaders(outcome.GetError().GetResponseHeaders());
-                    outcome = newError;
-                }
-                else
-                {
-                    return outcome;
-                }
+                serverTime = DateTime(awsDateHeaderIter->second.c_str(), DateFormat::RFC822);
+            }
+            else if (dateHeaderIter != headers.end())
+            {
+                serverTime = DateTime(dateHeaderIter->second.c_str(), DateFormat::RFC822);
+            }
+            else
+            {
+               AWS_LOGSTREAM_DEBUG(AWS_CLIENT_LOG_TAG, "Date header was not found in the response, can't attempt to detect clock skew");
+               serverTime = m_signer->GetSigningTimestamp();
             }
 
-            long sleepMillis = m_retryStrategy->CalculateDelayBeforeNextRetry(outcome.GetError(), retries);
+            AWS_LOGSTREAM_DEBUG(AWS_CLIENT_LOG_TAG, "Server time is " << serverTime.ToGmtString(DateFormat::RFC822) << ", while client time is " << DateTime::Now().ToGmtString(DateFormat::RFC822));
+            auto diff = DateTime::Diff(serverTime, m_signer->GetSigningTimestamp());
+            //only try again if clock skew was the cause of the error.
+            if(diff >= TIME_DIFF_MAX || diff <= TIME_DIF_MIN)
+            {
+                AWS_LOGSTREAM_INFO(AWS_CLIENT_LOG_TAG, "Computed time difference as " << diff.count() << " milliseconds. This is more than 4 minutes. Adjusting signer with the skew.");
+                m_signer->SetClockSkew(diff);
+                auto newError = AWSError<CoreErrors>(
+                    outcome.GetError().GetErrorType(), outcome.GetError().GetExceptionName(), outcome.GetError().GetMessage(), true);
+                newError.SetResponseHeaders(outcome.GetError().GetResponseHeaders());
+                outcome = newError;
+                //don't sleep at all if clock skew was the problem.
+                sleepMillis = 0;
+            }
+
+            if (!m_retryStrategy->ShouldRetry(outcome.GetError(), retries)) return outcome;
+
             AWS_LOGSTREAM_WARN(AWS_CLIENT_LOG_TAG, "Request failed, now waiting " << sleepMillis << " ms before attempting again.");
             if(request.GetBody())
             {
@@ -407,6 +420,47 @@ Aws::String AWSClient::GeneratePresignedUrl(URI& uri, HttpMethod method, const c
     return "";
 }
 
+Aws::String AWSClient::GeneratePresignedUrl(const Aws::AmazonWebServiceRequest& request, Aws::Http::URI& uri, Aws::Http::HttpMethod method, const char* region,
+    const Aws::Http::QueryStringParameterCollection& extraParams, long long expirationInSeconds) const
+{
+    std::shared_ptr<HttpRequest> httpRequest =
+        ConvertToRequestForPresigning(request, uri, method, extraParams);
+    if (m_signer->PresignRequest(*httpRequest, region, expirationInSeconds))
+    {
+        return httpRequest->GetURIString();
+    }
+
+    return "";
+}
+
+Aws::String AWSClient::GeneratePresignedUrl(const Aws::AmazonWebServiceRequest& request, Aws::Http::URI& uri, Aws::Http::HttpMethod method,
+    const Aws::Http::QueryStringParameterCollection& extraParams, long long expirationInSeconds) const
+{
+    std::shared_ptr<HttpRequest> httpRequest =
+        ConvertToRequestForPresigning(request, uri, method, extraParams);
+    if (m_signer->PresignRequest(*httpRequest, expirationInSeconds))
+    {
+        return httpRequest->GetURIString();
+    }
+
+    return "";
+}
+
+std::shared_ptr<Aws::Http::HttpRequest> AWSClient::ConvertToRequestForPresigning(const Aws::AmazonWebServiceRequest& request, Aws::Http::URI& uri,
+    Aws::Http::HttpMethod method, const Aws::Http::QueryStringParameterCollection& extraParams) const
+{
+    request.PutToPresignedUrl(uri);
+    std::shared_ptr<HttpRequest> httpRequest = CreateHttpRequest(uri, method, Aws::Utils::Stream::DefaultResponseStreamFactoryMethod);
+    
+    for (auto& param : extraParams)
+    {
+        httpRequest->AddQueryStringParameter(param.first.c_str(), param.second);
+    }
+
+    return httpRequest;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////
 AWSJsonClient::AWSJsonClient(const Aws::Client::ClientConfiguration& configuration,
     const std::shared_ptr<Aws::Client::AWSAuthSigner>& signer,
@@ -466,6 +520,14 @@ const char* MESSAGE_CAMEL_CASE = "Message";
 const char* ERROR_TYPE_HEADER = "x-amzn-ErrorType";
 const char* TYPE = "__type";
 
+static bool isRetryableHttpResponseCode(HttpResponseCode responseCode)
+{
+    return
+        responseCode == HttpResponseCode::INTERNAL_SERVER_ERROR ||
+        responseCode == HttpResponseCode::SERVICE_UNAVAILABLE ||
+        responseCode == HttpResponseCode::GATEWAY_TIMEOUT;
+}
+
 AWSError<CoreErrors> AWSJsonClient::BuildAWSError(
     const std::shared_ptr<Aws::Http::HttpResponse>& httpResponse) const
 {
@@ -478,10 +540,14 @@ AWSError<CoreErrors> AWSJsonClient::BuildAWSError(
     
     else if (!httpResponse->GetResponseBody() || httpResponse->GetResponseBody().tellp() < 1)
     {
+        auto responseCode = httpResponse->GetResponseCode();
+        auto errorCode = GuessBodylessErrorType(responseCode);
+
         Aws::StringStream ss;
-        ss << "No response body.  Response code: " << static_cast< uint32_t >( httpResponse->GetResponseCode() );
+        ss << "No response body. Response code: " << static_cast< uint32_t >(responseCode);
         AWS_LOG_ERROR(AWS_CLIENT_LOG_TAG, ss.str().c_str());
-        error = AWSError<CoreErrors>(CoreErrors::UNKNOWN, "", ss.str(), false);        
+        error = AWSError<CoreErrors>(errorCode, "", ss.str(),
+            isRetryableHttpResponseCode(responseCode));
     }
     else
     {
@@ -579,10 +645,14 @@ AWSError<CoreErrors> AWSXMLClient::BuildAWSError(const std::shared_ptr<Http::Htt
 
     if (httpResponse->GetResponseBody().tellp() < 1)
     {
+        auto responseCode = httpResponse->GetResponseCode();
+        auto errorCode = GuessBodylessErrorType(responseCode);
+
         Aws::StringStream ss;
-        ss << "No response body.  Response code: " << static_cast< uint32_t >( httpResponse->GetResponseCode() );
+        ss << "No response body. Response code: " << static_cast< uint32_t >(responseCode);
         AWS_LOG_ERROR(AWS_CLIENT_LOG_TAG, ss.str().c_str());
-        error = AWSError<CoreErrors>(CoreErrors::UNKNOWN, "", ss.str(), false);
+        error = AWSError<CoreErrors>(errorCode, "", ss.str(),
+            isRetryableHttpResponseCode(responseCode));
     }
     else
     {

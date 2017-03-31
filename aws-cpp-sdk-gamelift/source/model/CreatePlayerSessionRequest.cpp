@@ -23,7 +23,8 @@ using namespace Aws::Utils;
 
 CreatePlayerSessionRequest::CreatePlayerSessionRequest() : 
     m_gameSessionIdHasBeenSet(false),
-    m_playerIdHasBeenSet(false)
+    m_playerIdHasBeenSet(false),
+    m_playerDataHasBeenSet(false)
 {
 }
 
@@ -43,6 +44,12 @@ Aws::String CreatePlayerSessionRequest::SerializePayload() const
 
   }
 
+  if(m_playerDataHasBeenSet)
+  {
+   payload.WithString("PlayerData", m_playerData);
+
+  }
+
   return payload.WriteReadable();
 }
 
@@ -53,6 +60,7 @@ Aws::Http::HeaderValueCollection CreatePlayerSessionRequest::GetRequestSpecificH
   return headers;
 
 }
+
 
 
 

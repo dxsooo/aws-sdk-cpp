@@ -37,6 +37,11 @@ namespace Model
     DescribeVolumesRequest();
     Aws::String SerializePayload() const override;
 
+
+  protected:
+    void DumpBodyToUrl(Aws::Http::URI& uri ) const override;
+
+  public:
     /**
      * <p>Checks whether you have the required permissions for the action, without
      * actually making the request, and provides an error response. If you have the
@@ -121,8 +126,11 @@ namespace Model
      * <code>available</code> | <code>in-use</code> | <code>deleting</code> |
      * <code>deleted</code> | <code>error</code>).</p> </li> <li> <p>
      * <code>tag</code>:<i>key</i>=<i>value</i> - The key/value combination of a tag
-     * assigned to the resource.</p> </li> <li> <p> <code>tag-key</code> - The key of a
-     * tag assigned to the resource. This filter is independent of the
+     * assigned to the resource. Specify the key of the tag in the filter name and the
+     * value of the tag in the filter value. For example, for the tag Purpose=X,
+     * specify <code>tag:Purpose</code> for the filter name and <code>X</code> for the
+     * filter value.</p> </li> <li> <p> <code>tag-key</code> - The key of a tag
+     * assigned to the resource. This filter is independent of the
      * <code>tag-value</code> filter. For example, if you use both the filter
      * "tag-key=Purpose" and the filter "tag-value=X", you get any resources assigned
      * both the tag key Purpose (regardless of what the tag's value is), and the tag
@@ -158,8 +166,11 @@ namespace Model
      * <code>available</code> | <code>in-use</code> | <code>deleting</code> |
      * <code>deleted</code> | <code>error</code>).</p> </li> <li> <p>
      * <code>tag</code>:<i>key</i>=<i>value</i> - The key/value combination of a tag
-     * assigned to the resource.</p> </li> <li> <p> <code>tag-key</code> - The key of a
-     * tag assigned to the resource. This filter is independent of the
+     * assigned to the resource. Specify the key of the tag in the filter name and the
+     * value of the tag in the filter value. For example, for the tag Purpose=X,
+     * specify <code>tag:Purpose</code> for the filter name and <code>X</code> for the
+     * filter value.</p> </li> <li> <p> <code>tag-key</code> - The key of a tag
+     * assigned to the resource. This filter is independent of the
      * <code>tag-value</code> filter. For example, if you use both the filter
      * "tag-key=Purpose" and the filter "tag-value=X", you get any resources assigned
      * both the tag key Purpose (regardless of what the tag's value is), and the tag
@@ -195,8 +206,11 @@ namespace Model
      * <code>available</code> | <code>in-use</code> | <code>deleting</code> |
      * <code>deleted</code> | <code>error</code>).</p> </li> <li> <p>
      * <code>tag</code>:<i>key</i>=<i>value</i> - The key/value combination of a tag
-     * assigned to the resource.</p> </li> <li> <p> <code>tag-key</code> - The key of a
-     * tag assigned to the resource. This filter is independent of the
+     * assigned to the resource. Specify the key of the tag in the filter name and the
+     * value of the tag in the filter value. For example, for the tag Purpose=X,
+     * specify <code>tag:Purpose</code> for the filter name and <code>X</code> for the
+     * filter value.</p> </li> <li> <p> <code>tag-key</code> - The key of a tag
+     * assigned to the resource. This filter is independent of the
      * <code>tag-value</code> filter. For example, if you use both the filter
      * "tag-key=Purpose" and the filter "tag-value=X", you get any resources assigned
      * both the tag key Purpose (regardless of what the tag's value is), and the tag
@@ -232,8 +246,11 @@ namespace Model
      * <code>available</code> | <code>in-use</code> | <code>deleting</code> |
      * <code>deleted</code> | <code>error</code>).</p> </li> <li> <p>
      * <code>tag</code>:<i>key</i>=<i>value</i> - The key/value combination of a tag
-     * assigned to the resource.</p> </li> <li> <p> <code>tag-key</code> - The key of a
-     * tag assigned to the resource. This filter is independent of the
+     * assigned to the resource. Specify the key of the tag in the filter name and the
+     * value of the tag in the filter value. For example, for the tag Purpose=X,
+     * specify <code>tag:Purpose</code> for the filter name and <code>X</code> for the
+     * filter value.</p> </li> <li> <p> <code>tag-key</code> - The key of a tag
+     * assigned to the resource. This filter is independent of the
      * <code>tag-value</code> filter. For example, if you use both the filter
      * "tag-key=Purpose" and the filter "tag-value=X", you get any resources assigned
      * both the tag key Purpose (regardless of what the tag's value is), and the tag
@@ -269,8 +286,11 @@ namespace Model
      * <code>available</code> | <code>in-use</code> | <code>deleting</code> |
      * <code>deleted</code> | <code>error</code>).</p> </li> <li> <p>
      * <code>tag</code>:<i>key</i>=<i>value</i> - The key/value combination of a tag
-     * assigned to the resource.</p> </li> <li> <p> <code>tag-key</code> - The key of a
-     * tag assigned to the resource. This filter is independent of the
+     * assigned to the resource. Specify the key of the tag in the filter name and the
+     * value of the tag in the filter value. For example, for the tag Purpose=X,
+     * specify <code>tag:Purpose</code> for the filter name and <code>X</code> for the
+     * filter value.</p> </li> <li> <p> <code>tag-key</code> - The key of a tag
+     * assigned to the resource. This filter is independent of the
      * <code>tag-value</code> filter. For example, if you use both the filter
      * "tag-key=Purpose" and the filter "tag-value=X", you get any resources assigned
      * both the tag key Purpose (regardless of what the tag's value is), and the tag
@@ -306,8 +326,11 @@ namespace Model
      * <code>available</code> | <code>in-use</code> | <code>deleting</code> |
      * <code>deleted</code> | <code>error</code>).</p> </li> <li> <p>
      * <code>tag</code>:<i>key</i>=<i>value</i> - The key/value combination of a tag
-     * assigned to the resource.</p> </li> <li> <p> <code>tag-key</code> - The key of a
-     * tag assigned to the resource. This filter is independent of the
+     * assigned to the resource. Specify the key of the tag in the filter name and the
+     * value of the tag in the filter value. For example, for the tag Purpose=X,
+     * specify <code>tag:Purpose</code> for the filter name and <code>X</code> for the
+     * filter value.</p> </li> <li> <p> <code>tag-key</code> - The key of a tag
+     * assigned to the resource. This filter is independent of the
      * <code>tag-value</code> filter. For example, if you use both the filter
      * "tag-key=Purpose" and the filter "tag-value=X", you get any resources assigned
      * both the tag key Purpose (regardless of what the tag's value is), and the tag
@@ -343,8 +366,11 @@ namespace Model
      * <code>available</code> | <code>in-use</code> | <code>deleting</code> |
      * <code>deleted</code> | <code>error</code>).</p> </li> <li> <p>
      * <code>tag</code>:<i>key</i>=<i>value</i> - The key/value combination of a tag
-     * assigned to the resource.</p> </li> <li> <p> <code>tag-key</code> - The key of a
-     * tag assigned to the resource. This filter is independent of the
+     * assigned to the resource. Specify the key of the tag in the filter name and the
+     * value of the tag in the filter value. For example, for the tag Purpose=X,
+     * specify <code>tag:Purpose</code> for the filter name and <code>X</code> for the
+     * filter value.</p> </li> <li> <p> <code>tag-key</code> - The key of a tag
+     * assigned to the resource. This filter is independent of the
      * <code>tag-value</code> filter. For example, if you use both the filter
      * "tag-key=Purpose" and the filter "tag-value=X", you get any resources assigned
      * both the tag key Purpose (regardless of what the tag's value is), and the tag
@@ -429,8 +455,8 @@ namespace Model
      * only returns <code>MaxResults</code> results in a single page along with a
      * <code>NextToken</code> response element. The remaining results of the initial
      * request can be seen by sending another <code>DescribeVolumes</code> request with
-     * the returned <code>NextToken</code> value. This value can be between 5 and 1000;
-     * if <code>MaxResults</code> is given a value larger than 1000, only 1000 results
+     * the returned <code>NextToken</code> value. This value can be between 5 and 500;
+     * if <code>MaxResults</code> is given a value larger than 500, only 500 results
      * are returned. If this parameter is not used, then <code>DescribeVolumes</code>
      * returns all results. You cannot specify this parameter and the volume IDs
      * parameter in the same request.</p>
@@ -443,8 +469,8 @@ namespace Model
      * only returns <code>MaxResults</code> results in a single page along with a
      * <code>NextToken</code> response element. The remaining results of the initial
      * request can be seen by sending another <code>DescribeVolumes</code> request with
-     * the returned <code>NextToken</code> value. This value can be between 5 and 1000;
-     * if <code>MaxResults</code> is given a value larger than 1000, only 1000 results
+     * the returned <code>NextToken</code> value. This value can be between 5 and 500;
+     * if <code>MaxResults</code> is given a value larger than 500, only 500 results
      * are returned. If this parameter is not used, then <code>DescribeVolumes</code>
      * returns all results. You cannot specify this parameter and the volume IDs
      * parameter in the same request.</p>
@@ -457,8 +483,8 @@ namespace Model
      * only returns <code>MaxResults</code> results in a single page along with a
      * <code>NextToken</code> response element. The remaining results of the initial
      * request can be seen by sending another <code>DescribeVolumes</code> request with
-     * the returned <code>NextToken</code> value. This value can be between 5 and 1000;
-     * if <code>MaxResults</code> is given a value larger than 1000, only 1000 results
+     * the returned <code>NextToken</code> value. This value can be between 5 and 500;
+     * if <code>MaxResults</code> is given a value larger than 500, only 500 results
      * are returned. If this parameter is not used, then <code>DescribeVolumes</code>
      * returns all results. You cannot specify this parameter and the volume IDs
      * parameter in the same request.</p>

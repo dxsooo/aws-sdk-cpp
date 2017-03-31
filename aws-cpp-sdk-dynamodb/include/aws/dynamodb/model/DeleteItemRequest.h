@@ -45,6 +45,7 @@ namespace Model
 
     Aws::Http::HeaderValueCollection GetRequestSpecificHeaders() const override;
 
+
     /**
      * <p>The name of the table from which to delete the item.</p>
      */
@@ -433,9 +434,9 @@ namespace Model
      * following:</p> <ul> <li> <p>Functions: <code>attribute_exists |
      * attribute_not_exists | attribute_type | contains | begins_with | size</code>
      * </p> <p>These function names are case-sensitive.</p> </li> <li> <p>Comparison
-     * operators: <code> = | &lt;&gt; | &lt; | &gt; | &lt;= | &gt;= | BETWEEN |
-     * IN</code> </p> </li> <li> <p> Logical operators: <code>AND | OR | NOT</code>
-     * </p> </li> </ul> <p>For more information on condition expressions, see <a
+     * operators: <code>= | &lt;&gt; | &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN
+     * </code> </p> </li> <li> <p> Logical operators: <code>AND | OR | NOT</code> </p>
+     * </li> </ul> <p>For more information on condition expressions, see <a
      * href="http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.SpecifyingConditions.html">Specifying
      * Conditions</a> in the <i>Amazon DynamoDB Developer Guide</i>.</p>
      */
@@ -447,9 +448,9 @@ namespace Model
      * following:</p> <ul> <li> <p>Functions: <code>attribute_exists |
      * attribute_not_exists | attribute_type | contains | begins_with | size</code>
      * </p> <p>These function names are case-sensitive.</p> </li> <li> <p>Comparison
-     * operators: <code> = | &lt;&gt; | &lt; | &gt; | &lt;= | &gt;= | BETWEEN |
-     * IN</code> </p> </li> <li> <p> Logical operators: <code>AND | OR | NOT</code>
-     * </p> </li> </ul> <p>For more information on condition expressions, see <a
+     * operators: <code>= | &lt;&gt; | &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN
+     * </code> </p> </li> <li> <p> Logical operators: <code>AND | OR | NOT</code> </p>
+     * </li> </ul> <p>For more information on condition expressions, see <a
      * href="http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.SpecifyingConditions.html">Specifying
      * Conditions</a> in the <i>Amazon DynamoDB Developer Guide</i>.</p>
      */
@@ -461,9 +462,9 @@ namespace Model
      * following:</p> <ul> <li> <p>Functions: <code>attribute_exists |
      * attribute_not_exists | attribute_type | contains | begins_with | size</code>
      * </p> <p>These function names are case-sensitive.</p> </li> <li> <p>Comparison
-     * operators: <code> = | &lt;&gt; | &lt; | &gt; | &lt;= | &gt;= | BETWEEN |
-     * IN</code> </p> </li> <li> <p> Logical operators: <code>AND | OR | NOT</code>
-     * </p> </li> </ul> <p>For more information on condition expressions, see <a
+     * operators: <code>= | &lt;&gt; | &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN
+     * </code> </p> </li> <li> <p> Logical operators: <code>AND | OR | NOT</code> </p>
+     * </li> </ul> <p>For more information on condition expressions, see <a
      * href="http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.SpecifyingConditions.html">Specifying
      * Conditions</a> in the <i>Amazon DynamoDB Developer Guide</i>.</p>
      */
@@ -475,9 +476,9 @@ namespace Model
      * following:</p> <ul> <li> <p>Functions: <code>attribute_exists |
      * attribute_not_exists | attribute_type | contains | begins_with | size</code>
      * </p> <p>These function names are case-sensitive.</p> </li> <li> <p>Comparison
-     * operators: <code> = | &lt;&gt; | &lt; | &gt; | &lt;= | &gt;= | BETWEEN |
-     * IN</code> </p> </li> <li> <p> Logical operators: <code>AND | OR | NOT</code>
-     * </p> </li> </ul> <p>For more information on condition expressions, see <a
+     * operators: <code>= | &lt;&gt; | &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN
+     * </code> </p> </li> <li> <p> Logical operators: <code>AND | OR | NOT</code> </p>
+     * </li> </ul> <p>For more information on condition expressions, see <a
      * href="http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.SpecifyingConditions.html">Specifying
      * Conditions</a> in the <i>Amazon DynamoDB Developer Guide</i>.</p>
      */
@@ -489,9 +490,9 @@ namespace Model
      * following:</p> <ul> <li> <p>Functions: <code>attribute_exists |
      * attribute_not_exists | attribute_type | contains | begins_with | size</code>
      * </p> <p>These function names are case-sensitive.</p> </li> <li> <p>Comparison
-     * operators: <code> = | &lt;&gt; | &lt; | &gt; | &lt;= | &gt;= | BETWEEN |
-     * IN</code> </p> </li> <li> <p> Logical operators: <code>AND | OR | NOT</code>
-     * </p> </li> </ul> <p>For more information on condition expressions, see <a
+     * operators: <code>= | &lt;&gt; | &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN
+     * </code> </p> </li> <li> <p> Logical operators: <code>AND | OR | NOT</code> </p>
+     * </li> </ul> <p>For more information on condition expressions, see <a
      * href="http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.SpecifyingConditions.html">Specifying
      * Conditions</a> in the <i>Amazon DynamoDB Developer Guide</i>.</p>
      */
@@ -503,9 +504,9 @@ namespace Model
      * following:</p> <ul> <li> <p>Functions: <code>attribute_exists |
      * attribute_not_exists | attribute_type | contains | begins_with | size</code>
      * </p> <p>These function names are case-sensitive.</p> </li> <li> <p>Comparison
-     * operators: <code> = | &lt;&gt; | &lt; | &gt; | &lt;= | &gt;= | BETWEEN |
-     * IN</code> </p> </li> <li> <p> Logical operators: <code>AND | OR | NOT</code>
-     * </p> </li> </ul> <p>For more information on condition expressions, see <a
+     * operators: <code>= | &lt;&gt; | &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN
+     * </code> </p> </li> <li> <p> Logical operators: <code>AND | OR | NOT</code> </p>
+     * </li> </ul> <p>For more information on condition expressions, see <a
      * href="http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.SpecifyingConditions.html">Specifying
      * Conditions</a> in the <i>Amazon DynamoDB Developer Guide</i>.</p>
      */
@@ -517,9 +518,9 @@ namespace Model
      * following:</p> <ul> <li> <p>Functions: <code>attribute_exists |
      * attribute_not_exists | attribute_type | contains | begins_with | size</code>
      * </p> <p>These function names are case-sensitive.</p> </li> <li> <p>Comparison
-     * operators: <code> = | &lt;&gt; | &lt; | &gt; | &lt;= | &gt;= | BETWEEN |
-     * IN</code> </p> </li> <li> <p> Logical operators: <code>AND | OR | NOT</code>
-     * </p> </li> </ul> <p>For more information on condition expressions, see <a
+     * operators: <code>= | &lt;&gt; | &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN
+     * </code> </p> </li> <li> <p> Logical operators: <code>AND | OR | NOT</code> </p>
+     * </li> </ul> <p>For more information on condition expressions, see <a
      * href="http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.SpecifyingConditions.html">Specifying
      * Conditions</a> in the <i>Amazon DynamoDB Developer Guide</i>.</p>
      */

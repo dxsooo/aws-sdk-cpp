@@ -125,6 +125,9 @@ namespace Model
    * <p>Amazon EMR clusters. For more information, see <a
    * href="http://docs.aws.amazon.com/ElasticMapReduce/latest/ManagementGuide/emr-automatic-scaling.html">Using
    * Automatic Scaling in Amazon EMR</a> in the <i>Amazon EMR Management
+   * Guide</i>.</p> </li> <li> <p>AppStream 2.0 fleets. For more information, see <a
+   * href="http://docs.aws.amazon.com/appstream2/latest/developerguide/autoscaling.html">Autoscaling
+   * Amazon AppStream 2.0 Resources</a> in the <i>Amazon AppStream 2.0 Developer
    * Guide</i>.</p> </li> </ul> <p>For a list of supported regions, see <a
    * href="http://docs.aws.amazon.com/general/latest/gr/rande.html#as-app_region">AWS
    * Regions and Endpoints: Application Auto Scaling</a> in the <i>AWS General
@@ -471,7 +474,7 @@ namespace Model
         void RegisterScalableTargetAsyncHelper(const Model::RegisterScalableTargetRequest& request, const RegisterScalableTargetResponseReceivedHandler& handler, const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context) const;
 
       Aws::String m_uri;
-      std::shared_ptr<Utils::Threading::Executor> m_executor;
+      std::shared_ptr<Aws::Utils::Threading::Executor> m_executor;
   };
 
 } // namespace ApplicationAutoScaling

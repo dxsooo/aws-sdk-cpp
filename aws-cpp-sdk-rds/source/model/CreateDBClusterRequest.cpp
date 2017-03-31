@@ -42,7 +42,8 @@ CreateDBClusterRequest::CreateDBClusterRequest() :
     m_tagsHasBeenSet(false),
     m_storageEncrypted(false),
     m_storageEncryptedHasBeenSet(false),
-    m_kmsKeyIdHasBeenSet(false)
+    m_kmsKeyIdHasBeenSet(false),
+    m_preSignedUrlHasBeenSet(false)
 {
 }
 
@@ -167,7 +168,17 @@ Aws::String CreateDBClusterRequest::SerializePayload() const
     ss << "KmsKeyId=" << StringUtils::URLEncode(m_kmsKeyId.c_str()) << "&";
   }
 
+  if(m_preSignedUrlHasBeenSet)
+  {
+    ss << "PreSignedUrl=" << StringUtils::URLEncode(m_preSignedUrl.c_str()) << "&";
+  }
+
   ss << "Version=2014-10-31";
   return ss.str();
 }
 
+
+void  CreateDBClusterRequest::DumpBodyToUrl(Aws::Http::URI& uri ) const
+{
+  uri.SetQueryString(SerializePayload());
+}

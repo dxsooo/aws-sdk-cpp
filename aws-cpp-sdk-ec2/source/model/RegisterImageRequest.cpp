@@ -29,6 +29,7 @@ RegisterImageRequest::RegisterImageRequest() :
     m_architectureHasBeenSet(false),
     m_kernelIdHasBeenSet(false),
     m_ramdiskIdHasBeenSet(false),
+    m_billingProductsHasBeenSet(false),
     m_rootDeviceNameHasBeenSet(false),
     m_blockDeviceMappingsHasBeenSet(false),
     m_virtualizationTypeHasBeenSet(false),
@@ -77,6 +78,17 @@ Aws::String RegisterImageRequest::SerializePayload() const
     ss << "RamdiskId=" << StringUtils::URLEncode(m_ramdiskId.c_str()) << "&";
   }
 
+  if(m_billingProductsHasBeenSet)
+  {
+    unsigned billingProductsCount = 1;
+    for(auto& item : m_billingProducts)
+    {
+      ss << "BillingProduct." << billingProductsCount << "="
+          << StringUtils::URLEncode(item.c_str()) << "&";
+      billingProductsCount++;
+    }
+  }
+
   if(m_rootDeviceNameHasBeenSet)
   {
     ss << "RootDeviceName=" << StringUtils::URLEncode(m_rootDeviceName.c_str()) << "&";
@@ -111,3 +123,8 @@ Aws::String RegisterImageRequest::SerializePayload() const
   return ss.str();
 }
 
+
+void  RegisterImageRequest::DumpBodyToUrl(Aws::Http::URI& uri ) const
+{
+  uri.SetQueryString(SerializePayload());
+}

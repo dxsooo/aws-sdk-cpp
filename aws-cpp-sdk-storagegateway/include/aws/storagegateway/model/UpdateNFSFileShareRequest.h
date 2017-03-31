@@ -17,6 +17,7 @@
 #include <aws/storagegateway/StorageGatewayRequest.h>
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/storagegateway/model/NFSFileShareDefaults.h>
+#include <aws/core/utils/memory/stl/AWSVector.h>
 
 namespace Aws
 {
@@ -37,6 +38,7 @@ namespace Model
     Aws::String SerializePayload() const override;
 
     Aws::Http::HeaderValueCollection GetRequestSpecificHeaders() const override;
+
 
     /**
      * <p>The Amazon Resource Name (ARN) of the file share to be updated. </p>
@@ -207,6 +209,121 @@ namespace Model
      */
     inline UpdateNFSFileShareRequest& WithDefaultStorageClass(const char* value) { SetDefaultStorageClass(value); return *this;}
 
+    /**
+     * <p>The list of clients that are allowed to access the file gateway. The list
+     * must contain either valid IP addresses or valid CIDR blocks.</p>
+     */
+    inline const Aws::Vector<Aws::String>& GetClientList() const{ return m_clientList; }
+
+    /**
+     * <p>The list of clients that are allowed to access the file gateway. The list
+     * must contain either valid IP addresses or valid CIDR blocks.</p>
+     */
+    inline void SetClientList(const Aws::Vector<Aws::String>& value) { m_clientListHasBeenSet = true; m_clientList = value; }
+
+    /**
+     * <p>The list of clients that are allowed to access the file gateway. The list
+     * must contain either valid IP addresses or valid CIDR blocks.</p>
+     */
+    inline void SetClientList(Aws::Vector<Aws::String>&& value) { m_clientListHasBeenSet = true; m_clientList = value; }
+
+    /**
+     * <p>The list of clients that are allowed to access the file gateway. The list
+     * must contain either valid IP addresses or valid CIDR blocks.</p>
+     */
+    inline UpdateNFSFileShareRequest& WithClientList(const Aws::Vector<Aws::String>& value) { SetClientList(value); return *this;}
+
+    /**
+     * <p>The list of clients that are allowed to access the file gateway. The list
+     * must contain either valid IP addresses or valid CIDR blocks.</p>
+     */
+    inline UpdateNFSFileShareRequest& WithClientList(Aws::Vector<Aws::String>&& value) { SetClientList(value); return *this;}
+
+    /**
+     * <p>The list of clients that are allowed to access the file gateway. The list
+     * must contain either valid IP addresses or valid CIDR blocks.</p>
+     */
+    inline UpdateNFSFileShareRequest& AddClientList(const Aws::String& value) { m_clientListHasBeenSet = true; m_clientList.push_back(value); return *this; }
+
+    /**
+     * <p>The list of clients that are allowed to access the file gateway. The list
+     * must contain either valid IP addresses or valid CIDR blocks.</p>
+     */
+    inline UpdateNFSFileShareRequest& AddClientList(Aws::String&& value) { m_clientListHasBeenSet = true; m_clientList.push_back(value); return *this; }
+
+    /**
+     * <p>The list of clients that are allowed to access the file gateway. The list
+     * must contain either valid IP addresses or valid CIDR blocks.</p>
+     */
+    inline UpdateNFSFileShareRequest& AddClientList(const char* value) { m_clientListHasBeenSet = true; m_clientList.push_back(value); return *this; }
+
+    /**
+     * <p>Indicates the user mapped to anonymous user. Valid options: "RootSquash" -
+     * Only root is mapped to anonymous user, "NoSquash" - No one is mapped to
+     * anonymous user or "AllSquash" - Everyone is mapped to anonymous user.</p>
+     */
+    inline const Aws::String& GetSquash() const{ return m_squash; }
+
+    /**
+     * <p>Indicates the user mapped to anonymous user. Valid options: "RootSquash" -
+     * Only root is mapped to anonymous user, "NoSquash" - No one is mapped to
+     * anonymous user or "AllSquash" - Everyone is mapped to anonymous user.</p>
+     */
+    inline void SetSquash(const Aws::String& value) { m_squashHasBeenSet = true; m_squash = value; }
+
+    /**
+     * <p>Indicates the user mapped to anonymous user. Valid options: "RootSquash" -
+     * Only root is mapped to anonymous user, "NoSquash" - No one is mapped to
+     * anonymous user or "AllSquash" - Everyone is mapped to anonymous user.</p>
+     */
+    inline void SetSquash(Aws::String&& value) { m_squashHasBeenSet = true; m_squash = value; }
+
+    /**
+     * <p>Indicates the user mapped to anonymous user. Valid options: "RootSquash" -
+     * Only root is mapped to anonymous user, "NoSquash" - No one is mapped to
+     * anonymous user or "AllSquash" - Everyone is mapped to anonymous user.</p>
+     */
+    inline void SetSquash(const char* value) { m_squashHasBeenSet = true; m_squash.assign(value); }
+
+    /**
+     * <p>Indicates the user mapped to anonymous user. Valid options: "RootSquash" -
+     * Only root is mapped to anonymous user, "NoSquash" - No one is mapped to
+     * anonymous user or "AllSquash" - Everyone is mapped to anonymous user.</p>
+     */
+    inline UpdateNFSFileShareRequest& WithSquash(const Aws::String& value) { SetSquash(value); return *this;}
+
+    /**
+     * <p>Indicates the user mapped to anonymous user. Valid options: "RootSquash" -
+     * Only root is mapped to anonymous user, "NoSquash" - No one is mapped to
+     * anonymous user or "AllSquash" - Everyone is mapped to anonymous user.</p>
+     */
+    inline UpdateNFSFileShareRequest& WithSquash(Aws::String&& value) { SetSquash(value); return *this;}
+
+    /**
+     * <p>Indicates the user mapped to anonymous user. Valid options: "RootSquash" -
+     * Only root is mapped to anonymous user, "NoSquash" - No one is mapped to
+     * anonymous user or "AllSquash" - Everyone is mapped to anonymous user.</p>
+     */
+    inline UpdateNFSFileShareRequest& WithSquash(const char* value) { SetSquash(value); return *this;}
+
+    /**
+     * <p>Sets the write status of a file share. "true", if the write status is
+     * read-only; otherwise "false.</p>
+     */
+    inline bool GetReadOnly() const{ return m_readOnly; }
+
+    /**
+     * <p>Sets the write status of a file share. "true", if the write status is
+     * read-only; otherwise "false.</p>
+     */
+    inline void SetReadOnly(bool value) { m_readOnlyHasBeenSet = true; m_readOnly = value; }
+
+    /**
+     * <p>Sets the write status of a file share. "true", if the write status is
+     * read-only; otherwise "false.</p>
+     */
+    inline UpdateNFSFileShareRequest& WithReadOnly(bool value) { SetReadOnly(value); return *this;}
+
   private:
     Aws::String m_fileShareARN;
     bool m_fileShareARNHasBeenSet;
@@ -218,6 +335,12 @@ namespace Model
     bool m_nFSFileShareDefaultsHasBeenSet;
     Aws::String m_defaultStorageClass;
     bool m_defaultStorageClassHasBeenSet;
+    Aws::Vector<Aws::String> m_clientList;
+    bool m_clientListHasBeenSet;
+    Aws::String m_squash;
+    bool m_squashHasBeenSet;
+    bool m_readOnly;
+    bool m_readOnlyHasBeenSet;
   };
 
 } // namespace Model

@@ -37,6 +37,7 @@ namespace Model
 
     Aws::Http::HeaderValueCollection GetRequestSpecificHeaders() const override;
 
+
     /**
      * <p>Specifies the name of the trail or trail ARN. If <code>Name</code> is a trail
      * name, the string must meet the following requirements:</p> <ul> <li> <p>Contain
@@ -469,8 +470,8 @@ namespace Model
 
     /**
      * <p>Specifies the KMS key ID to use to encrypt the logs delivered by CloudTrail.
-     * The value can be a an alias name prefixed by "alias/", a fully specified ARN to
-     * an alias, a fully specified ARN to a key, or a globally unique identifier.</p>
+     * The value can be an alias name prefixed by "alias/", a fully specified ARN to an
+     * alias, a fully specified ARN to a key, or a globally unique identifier.</p>
      * <p>Examples:</p> <ul> <li> <p>alias/MyAliasName</p> </li> <li>
      * <p>arn:aws:kms:us-east-1:123456789012:alias/MyAliasName</p> </li> <li>
      * <p>arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012</p>
@@ -480,8 +481,8 @@ namespace Model
 
     /**
      * <p>Specifies the KMS key ID to use to encrypt the logs delivered by CloudTrail.
-     * The value can be a an alias name prefixed by "alias/", a fully specified ARN to
-     * an alias, a fully specified ARN to a key, or a globally unique identifier.</p>
+     * The value can be an alias name prefixed by "alias/", a fully specified ARN to an
+     * alias, a fully specified ARN to a key, or a globally unique identifier.</p>
      * <p>Examples:</p> <ul> <li> <p>alias/MyAliasName</p> </li> <li>
      * <p>arn:aws:kms:us-east-1:123456789012:alias/MyAliasName</p> </li> <li>
      * <p>arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012</p>
@@ -491,8 +492,8 @@ namespace Model
 
     /**
      * <p>Specifies the KMS key ID to use to encrypt the logs delivered by CloudTrail.
-     * The value can be a an alias name prefixed by "alias/", a fully specified ARN to
-     * an alias, a fully specified ARN to a key, or a globally unique identifier.</p>
+     * The value can be an alias name prefixed by "alias/", a fully specified ARN to an
+     * alias, a fully specified ARN to a key, or a globally unique identifier.</p>
      * <p>Examples:</p> <ul> <li> <p>alias/MyAliasName</p> </li> <li>
      * <p>arn:aws:kms:us-east-1:123456789012:alias/MyAliasName</p> </li> <li>
      * <p>arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012</p>
@@ -502,8 +503,8 @@ namespace Model
 
     /**
      * <p>Specifies the KMS key ID to use to encrypt the logs delivered by CloudTrail.
-     * The value can be a an alias name prefixed by "alias/", a fully specified ARN to
-     * an alias, a fully specified ARN to a key, or a globally unique identifier.</p>
+     * The value can be an alias name prefixed by "alias/", a fully specified ARN to an
+     * alias, a fully specified ARN to a key, or a globally unique identifier.</p>
      * <p>Examples:</p> <ul> <li> <p>alias/MyAliasName</p> </li> <li>
      * <p>arn:aws:kms:us-east-1:123456789012:alias/MyAliasName</p> </li> <li>
      * <p>arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012</p>
@@ -513,8 +514,8 @@ namespace Model
 
     /**
      * <p>Specifies the KMS key ID to use to encrypt the logs delivered by CloudTrail.
-     * The value can be a an alias name prefixed by "alias/", a fully specified ARN to
-     * an alias, a fully specified ARN to a key, or a globally unique identifier.</p>
+     * The value can be an alias name prefixed by "alias/", a fully specified ARN to an
+     * alias, a fully specified ARN to a key, or a globally unique identifier.</p>
      * <p>Examples:</p> <ul> <li> <p>alias/MyAliasName</p> </li> <li>
      * <p>arn:aws:kms:us-east-1:123456789012:alias/MyAliasName</p> </li> <li>
      * <p>arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012</p>
@@ -524,8 +525,8 @@ namespace Model
 
     /**
      * <p>Specifies the KMS key ID to use to encrypt the logs delivered by CloudTrail.
-     * The value can be a an alias name prefixed by "alias/", a fully specified ARN to
-     * an alias, a fully specified ARN to a key, or a globally unique identifier.</p>
+     * The value can be an alias name prefixed by "alias/", a fully specified ARN to an
+     * alias, a fully specified ARN to a key, or a globally unique identifier.</p>
      * <p>Examples:</p> <ul> <li> <p>alias/MyAliasName</p> </li> <li>
      * <p>arn:aws:kms:us-east-1:123456789012:alias/MyAliasName</p> </li> <li>
      * <p>arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012</p>
@@ -535,8 +536,8 @@ namespace Model
 
     /**
      * <p>Specifies the KMS key ID to use to encrypt the logs delivered by CloudTrail.
-     * The value can be a an alias name prefixed by "alias/", a fully specified ARN to
-     * an alias, a fully specified ARN to a key, or a globally unique identifier.</p>
+     * The value can be an alias name prefixed by "alias/", a fully specified ARN to an
+     * alias, a fully specified ARN to a key, or a globally unique identifier.</p>
      * <p>Examples:</p> <ul> <li> <p>alias/MyAliasName</p> </li> <li>
      * <p>arn:aws:kms:us-east-1:123456789012:alias/MyAliasName</p> </li> <li>
      * <p>arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012</p>

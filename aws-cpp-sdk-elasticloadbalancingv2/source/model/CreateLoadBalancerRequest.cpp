@@ -25,7 +25,9 @@ CreateLoadBalancerRequest::CreateLoadBalancerRequest() :
     m_securityGroupsHasBeenSet(false),
     m_scheme(LoadBalancerSchemeEnum::NOT_SET),
     m_schemeHasBeenSet(false),
-    m_tagsHasBeenSet(false)
+    m_tagsHasBeenSet(false),
+    m_ipAddressType(IpAddressType::NOT_SET),
+    m_ipAddressTypeHasBeenSet(false)
 {
 }
 
@@ -75,7 +77,17 @@ Aws::String CreateLoadBalancerRequest::SerializePayload() const
     }
   }
 
+  if(m_ipAddressTypeHasBeenSet)
+  {
+    ss << "IpAddressType=" << IpAddressTypeMapper::GetNameForIpAddressType(m_ipAddressType) << "&";
+  }
+
   ss << "Version=2015-12-01";
   return ss.str();
 }
 
+
+void  CreateLoadBalancerRequest::DumpBodyToUrl(Aws::Http::URI& uri ) const
+{
+  uri.SetQueryString(SerializePayload());
+}

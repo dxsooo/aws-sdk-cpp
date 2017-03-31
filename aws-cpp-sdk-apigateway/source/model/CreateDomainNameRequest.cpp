@@ -26,7 +26,8 @@ CreateDomainNameRequest::CreateDomainNameRequest() :
     m_certificateNameHasBeenSet(false),
     m_certificateBodyHasBeenSet(false),
     m_certificatePrivateKeyHasBeenSet(false),
-    m_certificateChainHasBeenSet(false)
+    m_certificateChainHasBeenSet(false),
+    m_certificateArnHasBeenSet(false)
 {
 }
 
@@ -64,8 +65,15 @@ Aws::String CreateDomainNameRequest::SerializePayload() const
 
   }
 
+  if(m_certificateArnHasBeenSet)
+  {
+   payload.WithString("certificateArn", m_certificateArn);
+
+  }
+
   return payload.WriteReadable();
 }
+
 
 
 

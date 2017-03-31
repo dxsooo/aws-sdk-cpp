@@ -26,9 +26,6 @@ namespace Model
 {
 
   /**
-   * <p>Contains the parameters for DescribeTags.</p><p><h3>See Also:</h3>   <a
-   * href="http://docs.aws.amazon.com/goto/WebAPI/elasticloadbalancingv2-2015-12-01/DescribeTagsInput">AWS
-   * API Reference</a></p>
    */
   class AWS_ELASTICLOADBALANCINGV2_API DescribeTagsRequest : public ElasticLoadBalancingv2Request
   {
@@ -36,6 +33,11 @@ namespace Model
     DescribeTagsRequest();
     Aws::String SerializePayload() const override;
 
+
+  protected:
+    void DumpBodyToUrl(Aws::Http::URI& uri ) const override;
+
+  public:
     /**
      * <p>The Amazon Resource Names (ARN) of the resources.</p>
      */

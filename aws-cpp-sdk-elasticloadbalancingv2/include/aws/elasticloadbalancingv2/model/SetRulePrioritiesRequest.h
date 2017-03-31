@@ -26,9 +26,6 @@ namespace Model
 {
 
   /**
-   * <p>Contains the parameters for SetRulePriorities.</p><p><h3>See Also:</h3>   <a
-   * href="http://docs.aws.amazon.com/goto/WebAPI/elasticloadbalancingv2-2015-12-01/SetRulePrioritiesInput">AWS
-   * API Reference</a></p>
    */
   class AWS_ELASTICLOADBALANCINGV2_API SetRulePrioritiesRequest : public ElasticLoadBalancingv2Request
   {
@@ -36,6 +33,11 @@ namespace Model
     SetRulePrioritiesRequest();
     Aws::String SerializePayload() const override;
 
+
+  protected:
+    void DumpBodyToUrl(Aws::Http::URI& uri ) const override;
+
+  public:
     /**
      * <p>The rule priorities.</p>
      */

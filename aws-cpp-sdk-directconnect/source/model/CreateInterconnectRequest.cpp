@@ -24,7 +24,8 @@ using namespace Aws::Utils;
 CreateInterconnectRequest::CreateInterconnectRequest() : 
     m_interconnectNameHasBeenSet(false),
     m_bandwidthHasBeenSet(false),
-    m_locationHasBeenSet(false)
+    m_locationHasBeenSet(false),
+    m_lagIdHasBeenSet(false)
 {
 }
 
@@ -50,6 +51,12 @@ Aws::String CreateInterconnectRequest::SerializePayload() const
 
   }
 
+  if(m_lagIdHasBeenSet)
+  {
+   payload.WithString("lagId", m_lagId);
+
+  }
+
   return payload.WriteReadable();
 }
 
@@ -60,6 +67,7 @@ Aws::Http::HeaderValueCollection CreateInterconnectRequest::GetRequestSpecificHe
   return headers;
 
 }
+
 
 
 

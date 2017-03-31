@@ -16,6 +16,7 @@
 #include <aws/storagegateway/StorageGateway_EXPORTS.h>
 #include <aws/storagegateway/model/NFSFileShareDefaults.h>
 #include <aws/core/utils/memory/stl/AWSString.h>
+#include <aws/core/utils/memory/stl/AWSVector.h>
 
 namespace Aws
 {
@@ -33,8 +34,8 @@ namespace Model
 
   /**
    * <p>The Unix file permissions and ownership information assigned, by default, to
-   * native S3 objects when Storage Gateway discovers them in S3
-   * buckets.</p><p><h3>See Also:</h3>   <a
+   * native S3 objects when Storage Gateway discovers them in S3 buckets. This
+   * operation is only supported in file gateways.</p><p><h3>See Also:</h3>   <a
    * href="http://docs.aws.amazon.com/goto/WebAPI/storagegateway-2013-06-30/NFSFileShareInfo">AWS
    * API Reference</a></p>
    */
@@ -296,6 +297,60 @@ namespace Model
      */
     inline NFSFileShareInfo& WithDefaultStorageClass(const char* value) { SetDefaultStorageClass(value); return *this;}
 
+    
+    inline const Aws::Vector<Aws::String>& GetClientList() const{ return m_clientList; }
+
+    
+    inline void SetClientList(const Aws::Vector<Aws::String>& value) { m_clientListHasBeenSet = true; m_clientList = value; }
+
+    
+    inline void SetClientList(Aws::Vector<Aws::String>&& value) { m_clientListHasBeenSet = true; m_clientList = value; }
+
+    
+    inline NFSFileShareInfo& WithClientList(const Aws::Vector<Aws::String>& value) { SetClientList(value); return *this;}
+
+    
+    inline NFSFileShareInfo& WithClientList(Aws::Vector<Aws::String>&& value) { SetClientList(value); return *this;}
+
+    
+    inline NFSFileShareInfo& AddClientList(const Aws::String& value) { m_clientListHasBeenSet = true; m_clientList.push_back(value); return *this; }
+
+    
+    inline NFSFileShareInfo& AddClientList(Aws::String&& value) { m_clientListHasBeenSet = true; m_clientList.push_back(value); return *this; }
+
+    
+    inline NFSFileShareInfo& AddClientList(const char* value) { m_clientListHasBeenSet = true; m_clientList.push_back(value); return *this; }
+
+    
+    inline const Aws::String& GetSquash() const{ return m_squash; }
+
+    
+    inline void SetSquash(const Aws::String& value) { m_squashHasBeenSet = true; m_squash = value; }
+
+    
+    inline void SetSquash(Aws::String&& value) { m_squashHasBeenSet = true; m_squash = value; }
+
+    
+    inline void SetSquash(const char* value) { m_squashHasBeenSet = true; m_squash.assign(value); }
+
+    
+    inline NFSFileShareInfo& WithSquash(const Aws::String& value) { SetSquash(value); return *this;}
+
+    
+    inline NFSFileShareInfo& WithSquash(Aws::String&& value) { SetSquash(value); return *this;}
+
+    
+    inline NFSFileShareInfo& WithSquash(const char* value) { SetSquash(value); return *this;}
+
+    
+    inline bool GetReadOnly() const{ return m_readOnly; }
+
+    
+    inline void SetReadOnly(bool value) { m_readOnlyHasBeenSet = true; m_readOnly = value; }
+
+    
+    inline NFSFileShareInfo& WithReadOnly(bool value) { SetReadOnly(value); return *this;}
+
   private:
     NFSFileShareDefaults m_nFSFileShareDefaults;
     bool m_nFSFileShareDefaultsHasBeenSet;
@@ -319,6 +374,12 @@ namespace Model
     bool m_locationARNHasBeenSet;
     Aws::String m_defaultStorageClass;
     bool m_defaultStorageClassHasBeenSet;
+    Aws::Vector<Aws::String> m_clientList;
+    bool m_clientListHasBeenSet;
+    Aws::String m_squash;
+    bool m_squashHasBeenSet;
+    bool m_readOnly;
+    bool m_readOnlyHasBeenSet;
   };
 
 } // namespace Model

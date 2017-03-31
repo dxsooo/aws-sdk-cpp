@@ -23,6 +23,7 @@ CreateConfigurationTemplateRequest::CreateConfigurationTemplateRequest() :
     m_applicationNameHasBeenSet(false),
     m_templateNameHasBeenSet(false),
     m_solutionStackNameHasBeenSet(false),
+    m_platformArnHasBeenSet(false),
     m_sourceConfigurationHasBeenSet(false),
     m_environmentIdHasBeenSet(false),
     m_descriptionHasBeenSet(false),
@@ -47,6 +48,11 @@ Aws::String CreateConfigurationTemplateRequest::SerializePayload() const
   if(m_solutionStackNameHasBeenSet)
   {
     ss << "SolutionStackName=" << StringUtils::URLEncode(m_solutionStackName.c_str()) << "&";
+  }
+
+  if(m_platformArnHasBeenSet)
+  {
+    ss << "PlatformArn=" << StringUtils::URLEncode(m_platformArn.c_str()) << "&";
   }
 
   if(m_sourceConfigurationHasBeenSet)
@@ -78,3 +84,8 @@ Aws::String CreateConfigurationTemplateRequest::SerializePayload() const
   return ss.str();
 }
 
+
+void  CreateConfigurationTemplateRequest::DumpBodyToUrl(Aws::Http::URI& uri ) const
+{
+  uri.SetQueryString(SerializePayload());
+}

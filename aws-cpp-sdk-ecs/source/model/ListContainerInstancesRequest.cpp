@@ -26,7 +26,9 @@ ListContainerInstancesRequest::ListContainerInstancesRequest() :
     m_filterHasBeenSet(false),
     m_nextTokenHasBeenSet(false),
     m_maxResults(0),
-    m_maxResultsHasBeenSet(false)
+    m_maxResultsHasBeenSet(false),
+    m_status(ContainerInstanceStatus::NOT_SET),
+    m_statusHasBeenSet(false)
 {
 }
 
@@ -58,6 +60,11 @@ Aws::String ListContainerInstancesRequest::SerializePayload() const
 
   }
 
+  if(m_statusHasBeenSet)
+  {
+   payload.WithString("status", ContainerInstanceStatusMapper::GetNameForContainerInstanceStatus(m_status));
+  }
+
   return payload.WriteReadable();
 }
 
@@ -68,6 +75,7 @@ Aws::Http::HeaderValueCollection ListContainerInstancesRequest::GetRequestSpecif
   return headers;
 
 }
+
 
 
 

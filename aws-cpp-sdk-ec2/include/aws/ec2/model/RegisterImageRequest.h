@@ -38,6 +38,11 @@ namespace Model
     RegisterImageRequest();
     Aws::String SerializePayload() const override;
 
+
+  protected:
+    void DumpBodyToUrl(Aws::Http::URI& uri ) const override;
+
+  public:
     /**
      * <p>Checks whether you have the required permissions for the action, without
      * actually making the request, and provides an error response. If you have the
@@ -287,6 +292,62 @@ namespace Model
     inline RegisterImageRequest& WithRamdiskId(const char* value) { SetRamdiskId(value); return *this;}
 
     /**
+     * <p>The billing product codes. Your account must be authorized to specify billing
+     * product codes. Otherwise, you can use the AWS Marketplace to bill for the use of
+     * an AMI.</p>
+     */
+    inline const Aws::Vector<Aws::String>& GetBillingProducts() const{ return m_billingProducts; }
+
+    /**
+     * <p>The billing product codes. Your account must be authorized to specify billing
+     * product codes. Otherwise, you can use the AWS Marketplace to bill for the use of
+     * an AMI.</p>
+     */
+    inline void SetBillingProducts(const Aws::Vector<Aws::String>& value) { m_billingProductsHasBeenSet = true; m_billingProducts = value; }
+
+    /**
+     * <p>The billing product codes. Your account must be authorized to specify billing
+     * product codes. Otherwise, you can use the AWS Marketplace to bill for the use of
+     * an AMI.</p>
+     */
+    inline void SetBillingProducts(Aws::Vector<Aws::String>&& value) { m_billingProductsHasBeenSet = true; m_billingProducts = value; }
+
+    /**
+     * <p>The billing product codes. Your account must be authorized to specify billing
+     * product codes. Otherwise, you can use the AWS Marketplace to bill for the use of
+     * an AMI.</p>
+     */
+    inline RegisterImageRequest& WithBillingProducts(const Aws::Vector<Aws::String>& value) { SetBillingProducts(value); return *this;}
+
+    /**
+     * <p>The billing product codes. Your account must be authorized to specify billing
+     * product codes. Otherwise, you can use the AWS Marketplace to bill for the use of
+     * an AMI.</p>
+     */
+    inline RegisterImageRequest& WithBillingProducts(Aws::Vector<Aws::String>&& value) { SetBillingProducts(value); return *this;}
+
+    /**
+     * <p>The billing product codes. Your account must be authorized to specify billing
+     * product codes. Otherwise, you can use the AWS Marketplace to bill for the use of
+     * an AMI.</p>
+     */
+    inline RegisterImageRequest& AddBillingProducts(const Aws::String& value) { m_billingProductsHasBeenSet = true; m_billingProducts.push_back(value); return *this; }
+
+    /**
+     * <p>The billing product codes. Your account must be authorized to specify billing
+     * product codes. Otherwise, you can use the AWS Marketplace to bill for the use of
+     * an AMI.</p>
+     */
+    inline RegisterImageRequest& AddBillingProducts(Aws::String&& value) { m_billingProductsHasBeenSet = true; m_billingProducts.push_back(value); return *this; }
+
+    /**
+     * <p>The billing product codes. Your account must be authorized to specify billing
+     * product codes. Otherwise, you can use the AWS Marketplace to bill for the use of
+     * an AMI.</p>
+     */
+    inline RegisterImageRequest& AddBillingProducts(const char* value) { m_billingProductsHasBeenSet = true; m_billingProducts.push_back(value); return *this; }
+
+    /**
      * <p>The name of the root device (for example, <code>/dev/sda1</code>, or
      * <code>/dev/xvda</code>).</p>
      */
@@ -500,6 +561,8 @@ namespace Model
     bool m_kernelIdHasBeenSet;
     Aws::String m_ramdiskId;
     bool m_ramdiskIdHasBeenSet;
+    Aws::Vector<Aws::String> m_billingProducts;
+    bool m_billingProductsHasBeenSet;
     Aws::String m_rootDeviceName;
     bool m_rootDeviceNameHasBeenSet;
     Aws::Vector<BlockDeviceMapping> m_blockDeviceMappings;

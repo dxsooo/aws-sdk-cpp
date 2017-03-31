@@ -46,6 +46,7 @@ namespace Model
 
     Aws::Http::HeaderValueCollection GetRequestSpecificHeaders() const override;
 
+
     /**
      * <p>The name of the table containing the item to update.</p>
      */
@@ -402,14 +403,15 @@ namespace Model
      * the valid values are:</p> <ul> <li> <p> <code>NONE</code> - If
      * <code>ReturnValues</code> is not specified, or if its value is
      * <code>NONE</code>, then nothing is returned. (This setting is the default for
-     * <code>ReturnValues</code>.)</p> </li> <li> <p> <code>ALL_OLD</code> - If
-     * <code>UpdateItem</code> overwrote an attribute name-value pair, then the content
-     * of the old item is returned.</p> </li> <li> <p> <code>UPDATED_OLD</code> - The
-     * old versions of only the updated attributes are returned.</p> </li> <li> <p>
-     * <code>ALL_NEW</code> - All of the attributes of the new version of the item are
-     * returned.</p> </li> <li> <p> <code>UPDATED_NEW</code> - The new versions of only
-     * the updated attributes are returned.</p> </li> </ul> <p>There is no additional
-     * cost associated with requesting a return value aside from the small network and
+     * <code>ReturnValues</code>.)</p> </li> <li> <p> <code>ALL_OLD</code> - Returns
+     * all of the attributes of the item, as they appeared before the UpdateItem
+     * operation.</p> </li> <li> <p> <code>UPDATED_OLD</code> - Returns only the
+     * updated attributes, as they appeared before the UpdateItem operation.</p> </li>
+     * <li> <p> <code>ALL_NEW</code> - Returns all of the attributes of the item, as
+     * they appear after the UpdateItem operation.</p> </li> <li> <p>
+     * <code>UPDATED_NEW</code> - Returns only the updated attributes, as they appear
+     * after the UpdateItem operation.</p> </li> </ul> <p>There is no additional cost
+     * associated with requesting a return value aside from the small network and
      * processing overhead of receiving a larger response. No Read Capacity Units are
      * consumed.</p> <p>Values returned are strongly consistent</p>
      */
@@ -421,14 +423,15 @@ namespace Model
      * the valid values are:</p> <ul> <li> <p> <code>NONE</code> - If
      * <code>ReturnValues</code> is not specified, or if its value is
      * <code>NONE</code>, then nothing is returned. (This setting is the default for
-     * <code>ReturnValues</code>.)</p> </li> <li> <p> <code>ALL_OLD</code> - If
-     * <code>UpdateItem</code> overwrote an attribute name-value pair, then the content
-     * of the old item is returned.</p> </li> <li> <p> <code>UPDATED_OLD</code> - The
-     * old versions of only the updated attributes are returned.</p> </li> <li> <p>
-     * <code>ALL_NEW</code> - All of the attributes of the new version of the item are
-     * returned.</p> </li> <li> <p> <code>UPDATED_NEW</code> - The new versions of only
-     * the updated attributes are returned.</p> </li> </ul> <p>There is no additional
-     * cost associated with requesting a return value aside from the small network and
+     * <code>ReturnValues</code>.)</p> </li> <li> <p> <code>ALL_OLD</code> - Returns
+     * all of the attributes of the item, as they appeared before the UpdateItem
+     * operation.</p> </li> <li> <p> <code>UPDATED_OLD</code> - Returns only the
+     * updated attributes, as they appeared before the UpdateItem operation.</p> </li>
+     * <li> <p> <code>ALL_NEW</code> - Returns all of the attributes of the item, as
+     * they appear after the UpdateItem operation.</p> </li> <li> <p>
+     * <code>UPDATED_NEW</code> - Returns only the updated attributes, as they appear
+     * after the UpdateItem operation.</p> </li> </ul> <p>There is no additional cost
+     * associated with requesting a return value aside from the small network and
      * processing overhead of receiving a larger response. No Read Capacity Units are
      * consumed.</p> <p>Values returned are strongly consistent</p>
      */
@@ -440,14 +443,15 @@ namespace Model
      * the valid values are:</p> <ul> <li> <p> <code>NONE</code> - If
      * <code>ReturnValues</code> is not specified, or if its value is
      * <code>NONE</code>, then nothing is returned. (This setting is the default for
-     * <code>ReturnValues</code>.)</p> </li> <li> <p> <code>ALL_OLD</code> - If
-     * <code>UpdateItem</code> overwrote an attribute name-value pair, then the content
-     * of the old item is returned.</p> </li> <li> <p> <code>UPDATED_OLD</code> - The
-     * old versions of only the updated attributes are returned.</p> </li> <li> <p>
-     * <code>ALL_NEW</code> - All of the attributes of the new version of the item are
-     * returned.</p> </li> <li> <p> <code>UPDATED_NEW</code> - The new versions of only
-     * the updated attributes are returned.</p> </li> </ul> <p>There is no additional
-     * cost associated with requesting a return value aside from the small network and
+     * <code>ReturnValues</code>.)</p> </li> <li> <p> <code>ALL_OLD</code> - Returns
+     * all of the attributes of the item, as they appeared before the UpdateItem
+     * operation.</p> </li> <li> <p> <code>UPDATED_OLD</code> - Returns only the
+     * updated attributes, as they appeared before the UpdateItem operation.</p> </li>
+     * <li> <p> <code>ALL_NEW</code> - Returns all of the attributes of the item, as
+     * they appear after the UpdateItem operation.</p> </li> <li> <p>
+     * <code>UPDATED_NEW</code> - Returns only the updated attributes, as they appear
+     * after the UpdateItem operation.</p> </li> </ul> <p>There is no additional cost
+     * associated with requesting a return value aside from the small network and
      * processing overhead of receiving a larger response. No Read Capacity Units are
      * consumed.</p> <p>Values returned are strongly consistent</p>
      */
@@ -459,14 +463,15 @@ namespace Model
      * the valid values are:</p> <ul> <li> <p> <code>NONE</code> - If
      * <code>ReturnValues</code> is not specified, or if its value is
      * <code>NONE</code>, then nothing is returned. (This setting is the default for
-     * <code>ReturnValues</code>.)</p> </li> <li> <p> <code>ALL_OLD</code> - If
-     * <code>UpdateItem</code> overwrote an attribute name-value pair, then the content
-     * of the old item is returned.</p> </li> <li> <p> <code>UPDATED_OLD</code> - The
-     * old versions of only the updated attributes are returned.</p> </li> <li> <p>
-     * <code>ALL_NEW</code> - All of the attributes of the new version of the item are
-     * returned.</p> </li> <li> <p> <code>UPDATED_NEW</code> - The new versions of only
-     * the updated attributes are returned.</p> </li> </ul> <p>There is no additional
-     * cost associated with requesting a return value aside from the small network and
+     * <code>ReturnValues</code>.)</p> </li> <li> <p> <code>ALL_OLD</code> - Returns
+     * all of the attributes of the item, as they appeared before the UpdateItem
+     * operation.</p> </li> <li> <p> <code>UPDATED_OLD</code> - Returns only the
+     * updated attributes, as they appeared before the UpdateItem operation.</p> </li>
+     * <li> <p> <code>ALL_NEW</code> - Returns all of the attributes of the item, as
+     * they appear after the UpdateItem operation.</p> </li> <li> <p>
+     * <code>UPDATED_NEW</code> - Returns only the updated attributes, as they appear
+     * after the UpdateItem operation.</p> </li> </ul> <p>There is no additional cost
+     * associated with requesting a return value aside from the small network and
      * processing overhead of receiving a larger response. No Read Capacity Units are
      * consumed.</p> <p>Values returned are strongly consistent</p>
      */
@@ -478,14 +483,15 @@ namespace Model
      * the valid values are:</p> <ul> <li> <p> <code>NONE</code> - If
      * <code>ReturnValues</code> is not specified, or if its value is
      * <code>NONE</code>, then nothing is returned. (This setting is the default for
-     * <code>ReturnValues</code>.)</p> </li> <li> <p> <code>ALL_OLD</code> - If
-     * <code>UpdateItem</code> overwrote an attribute name-value pair, then the content
-     * of the old item is returned.</p> </li> <li> <p> <code>UPDATED_OLD</code> - The
-     * old versions of only the updated attributes are returned.</p> </li> <li> <p>
-     * <code>ALL_NEW</code> - All of the attributes of the new version of the item are
-     * returned.</p> </li> <li> <p> <code>UPDATED_NEW</code> - The new versions of only
-     * the updated attributes are returned.</p> </li> </ul> <p>There is no additional
-     * cost associated with requesting a return value aside from the small network and
+     * <code>ReturnValues</code>.)</p> </li> <li> <p> <code>ALL_OLD</code> - Returns
+     * all of the attributes of the item, as they appeared before the UpdateItem
+     * operation.</p> </li> <li> <p> <code>UPDATED_OLD</code> - Returns only the
+     * updated attributes, as they appeared before the UpdateItem operation.</p> </li>
+     * <li> <p> <code>ALL_NEW</code> - Returns all of the attributes of the item, as
+     * they appear after the UpdateItem operation.</p> </li> <li> <p>
+     * <code>UPDATED_NEW</code> - Returns only the updated attributes, as they appear
+     * after the UpdateItem operation.</p> </li> </ul> <p>There is no additional cost
+     * associated with requesting a return value aside from the small network and
      * processing overhead of receiving a larger response. No Read Capacity Units are
      * consumed.</p> <p>Values returned are strongly consistent</p>
      */
@@ -978,8 +984,8 @@ namespace Model
      * succeed.</p> <p>An expression can contain any of the following:</p> <ul> <li>
      * <p>Functions: <code>attribute_exists | attribute_not_exists | attribute_type |
      * contains | begins_with | size</code> </p> <p>These function names are
-     * case-sensitive.</p> </li> <li> <p>Comparison operators: <code> = | &lt;&gt; |
-     * &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN</code> </p> </li> <li> <p> Logical
+     * case-sensitive.</p> </li> <li> <p>Comparison operators: <code>= | &lt;&gt; |
+     * &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN </code> </p> </li> <li> <p> Logical
      * operators: <code>AND | OR | NOT</code> </p> </li> </ul> <p>For more information
      * on condition expressions, see <a
      * href="http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.SpecifyingConditions.html">Specifying
@@ -992,8 +998,8 @@ namespace Model
      * succeed.</p> <p>An expression can contain any of the following:</p> <ul> <li>
      * <p>Functions: <code>attribute_exists | attribute_not_exists | attribute_type |
      * contains | begins_with | size</code> </p> <p>These function names are
-     * case-sensitive.</p> </li> <li> <p>Comparison operators: <code> = | &lt;&gt; |
-     * &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN</code> </p> </li> <li> <p> Logical
+     * case-sensitive.</p> </li> <li> <p>Comparison operators: <code>= | &lt;&gt; |
+     * &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN </code> </p> </li> <li> <p> Logical
      * operators: <code>AND | OR | NOT</code> </p> </li> </ul> <p>For more information
      * on condition expressions, see <a
      * href="http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.SpecifyingConditions.html">Specifying
@@ -1006,8 +1012,8 @@ namespace Model
      * succeed.</p> <p>An expression can contain any of the following:</p> <ul> <li>
      * <p>Functions: <code>attribute_exists | attribute_not_exists | attribute_type |
      * contains | begins_with | size</code> </p> <p>These function names are
-     * case-sensitive.</p> </li> <li> <p>Comparison operators: <code> = | &lt;&gt; |
-     * &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN</code> </p> </li> <li> <p> Logical
+     * case-sensitive.</p> </li> <li> <p>Comparison operators: <code>= | &lt;&gt; |
+     * &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN </code> </p> </li> <li> <p> Logical
      * operators: <code>AND | OR | NOT</code> </p> </li> </ul> <p>For more information
      * on condition expressions, see <a
      * href="http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.SpecifyingConditions.html">Specifying
@@ -1020,8 +1026,8 @@ namespace Model
      * succeed.</p> <p>An expression can contain any of the following:</p> <ul> <li>
      * <p>Functions: <code>attribute_exists | attribute_not_exists | attribute_type |
      * contains | begins_with | size</code> </p> <p>These function names are
-     * case-sensitive.</p> </li> <li> <p>Comparison operators: <code> = | &lt;&gt; |
-     * &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN</code> </p> </li> <li> <p> Logical
+     * case-sensitive.</p> </li> <li> <p>Comparison operators: <code>= | &lt;&gt; |
+     * &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN </code> </p> </li> <li> <p> Logical
      * operators: <code>AND | OR | NOT</code> </p> </li> </ul> <p>For more information
      * on condition expressions, see <a
      * href="http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.SpecifyingConditions.html">Specifying
@@ -1034,8 +1040,8 @@ namespace Model
      * succeed.</p> <p>An expression can contain any of the following:</p> <ul> <li>
      * <p>Functions: <code>attribute_exists | attribute_not_exists | attribute_type |
      * contains | begins_with | size</code> </p> <p>These function names are
-     * case-sensitive.</p> </li> <li> <p>Comparison operators: <code> = | &lt;&gt; |
-     * &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN</code> </p> </li> <li> <p> Logical
+     * case-sensitive.</p> </li> <li> <p>Comparison operators: <code>= | &lt;&gt; |
+     * &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN </code> </p> </li> <li> <p> Logical
      * operators: <code>AND | OR | NOT</code> </p> </li> </ul> <p>For more information
      * on condition expressions, see <a
      * href="http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.SpecifyingConditions.html">Specifying
@@ -1048,8 +1054,8 @@ namespace Model
      * succeed.</p> <p>An expression can contain any of the following:</p> <ul> <li>
      * <p>Functions: <code>attribute_exists | attribute_not_exists | attribute_type |
      * contains | begins_with | size</code> </p> <p>These function names are
-     * case-sensitive.</p> </li> <li> <p>Comparison operators: <code> = | &lt;&gt; |
-     * &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN</code> </p> </li> <li> <p> Logical
+     * case-sensitive.</p> </li> <li> <p>Comparison operators: <code>= | &lt;&gt; |
+     * &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN </code> </p> </li> <li> <p> Logical
      * operators: <code>AND | OR | NOT</code> </p> </li> </ul> <p>For more information
      * on condition expressions, see <a
      * href="http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.SpecifyingConditions.html">Specifying
@@ -1062,8 +1068,8 @@ namespace Model
      * succeed.</p> <p>An expression can contain any of the following:</p> <ul> <li>
      * <p>Functions: <code>attribute_exists | attribute_not_exists | attribute_type |
      * contains | begins_with | size</code> </p> <p>These function names are
-     * case-sensitive.</p> </li> <li> <p>Comparison operators: <code> = | &lt;&gt; |
-     * &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN</code> </p> </li> <li> <p> Logical
+     * case-sensitive.</p> </li> <li> <p>Comparison operators: <code>= | &lt;&gt; |
+     * &lt; | &gt; | &lt;= | &gt;= | BETWEEN | IN </code> </p> </li> <li> <p> Logical
      * operators: <code>AND | OR | NOT</code> </p> </li> </ul> <p>For more information
      * on condition expressions, see <a
      * href="http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.SpecifyingConditions.html">Specifying

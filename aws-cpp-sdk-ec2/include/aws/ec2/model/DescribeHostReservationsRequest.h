@@ -34,6 +34,11 @@ namespace Model
     DescribeHostReservationsRequest();
     Aws::String SerializePayload() const override;
 
+
+  protected:
+    void DumpBodyToUrl(Aws::Http::URI& uri ) const override;
+
+  public:
     /**
      * <p>One or more host reservation IDs.</p>
      */
@@ -77,8 +82,8 @@ namespace Model
     /**
      * <p>One or more filters.</p> <ul> <li> <p> <code>instance-family</code> - The
      * instance family (e.g., <code>m4</code>).</p> </li> <li> <p>
-     * <code>payment-option</code> - The payment option (<code>No Upfront</code> |
-     * <code>Partial Upfront</code> | <code>All Upfront</code>).</p> </li> <li> <p>
+     * <code>payment-option</code> - The payment option (<code>NoUpfront</code> |
+     * <code>PartialUpfront</code> | <code>AllUpfront</code>).</p> </li> <li> <p>
      * <code>state</code> - The state of the reservation (<code>payment-pending</code>
      * | <code>payment-failed</code> | <code>active</code> | <code>retired</code>).</p>
      * </li> </ul>
@@ -88,8 +93,8 @@ namespace Model
     /**
      * <p>One or more filters.</p> <ul> <li> <p> <code>instance-family</code> - The
      * instance family (e.g., <code>m4</code>).</p> </li> <li> <p>
-     * <code>payment-option</code> - The payment option (<code>No Upfront</code> |
-     * <code>Partial Upfront</code> | <code>All Upfront</code>).</p> </li> <li> <p>
+     * <code>payment-option</code> - The payment option (<code>NoUpfront</code> |
+     * <code>PartialUpfront</code> | <code>AllUpfront</code>).</p> </li> <li> <p>
      * <code>state</code> - The state of the reservation (<code>payment-pending</code>
      * | <code>payment-failed</code> | <code>active</code> | <code>retired</code>).</p>
      * </li> </ul>
@@ -99,8 +104,8 @@ namespace Model
     /**
      * <p>One or more filters.</p> <ul> <li> <p> <code>instance-family</code> - The
      * instance family (e.g., <code>m4</code>).</p> </li> <li> <p>
-     * <code>payment-option</code> - The payment option (<code>No Upfront</code> |
-     * <code>Partial Upfront</code> | <code>All Upfront</code>).</p> </li> <li> <p>
+     * <code>payment-option</code> - The payment option (<code>NoUpfront</code> |
+     * <code>PartialUpfront</code> | <code>AllUpfront</code>).</p> </li> <li> <p>
      * <code>state</code> - The state of the reservation (<code>payment-pending</code>
      * | <code>payment-failed</code> | <code>active</code> | <code>retired</code>).</p>
      * </li> </ul>
@@ -110,8 +115,8 @@ namespace Model
     /**
      * <p>One or more filters.</p> <ul> <li> <p> <code>instance-family</code> - The
      * instance family (e.g., <code>m4</code>).</p> </li> <li> <p>
-     * <code>payment-option</code> - The payment option (<code>No Upfront</code> |
-     * <code>Partial Upfront</code> | <code>All Upfront</code>).</p> </li> <li> <p>
+     * <code>payment-option</code> - The payment option (<code>NoUpfront</code> |
+     * <code>PartialUpfront</code> | <code>AllUpfront</code>).</p> </li> <li> <p>
      * <code>state</code> - The state of the reservation (<code>payment-pending</code>
      * | <code>payment-failed</code> | <code>active</code> | <code>retired</code>).</p>
      * </li> </ul>
@@ -121,8 +126,8 @@ namespace Model
     /**
      * <p>One or more filters.</p> <ul> <li> <p> <code>instance-family</code> - The
      * instance family (e.g., <code>m4</code>).</p> </li> <li> <p>
-     * <code>payment-option</code> - The payment option (<code>No Upfront</code> |
-     * <code>Partial Upfront</code> | <code>All Upfront</code>).</p> </li> <li> <p>
+     * <code>payment-option</code> - The payment option (<code>NoUpfront</code> |
+     * <code>PartialUpfront</code> | <code>AllUpfront</code>).</p> </li> <li> <p>
      * <code>state</code> - The state of the reservation (<code>payment-pending</code>
      * | <code>payment-failed</code> | <code>active</code> | <code>retired</code>).</p>
      * </li> </ul>
@@ -132,8 +137,8 @@ namespace Model
     /**
      * <p>One or more filters.</p> <ul> <li> <p> <code>instance-family</code> - The
      * instance family (e.g., <code>m4</code>).</p> </li> <li> <p>
-     * <code>payment-option</code> - The payment option (<code>No Upfront</code> |
-     * <code>Partial Upfront</code> | <code>All Upfront</code>).</p> </li> <li> <p>
+     * <code>payment-option</code> - The payment option (<code>NoUpfront</code> |
+     * <code>PartialUpfront</code> | <code>AllUpfront</code>).</p> </li> <li> <p>
      * <code>state</code> - The state of the reservation (<code>payment-pending</code>
      * | <code>payment-failed</code> | <code>active</code> | <code>retired</code>).</p>
      * </li> </ul>
@@ -143,8 +148,8 @@ namespace Model
     /**
      * <p>One or more filters.</p> <ul> <li> <p> <code>instance-family</code> - The
      * instance family (e.g., <code>m4</code>).</p> </li> <li> <p>
-     * <code>payment-option</code> - The payment option (<code>No Upfront</code> |
-     * <code>Partial Upfront</code> | <code>All Upfront</code>).</p> </li> <li> <p>
+     * <code>payment-option</code> - The payment option (<code>NoUpfront</code> |
+     * <code>PartialUpfront</code> | <code>AllUpfront</code>).</p> </li> <li> <p>
      * <code>state</code> - The state of the reservation (<code>payment-pending</code>
      * | <code>payment-failed</code> | <code>active</code> | <code>retired</code>).</p>
      * </li> </ul>

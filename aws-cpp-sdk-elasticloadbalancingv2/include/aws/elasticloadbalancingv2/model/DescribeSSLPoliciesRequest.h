@@ -26,10 +26,6 @@ namespace Model
 {
 
   /**
-   * <p>Contains the parameters for DescribeSSLPolicies.</p><p><h3>See Also:</h3>  
-   * <a
-   * href="http://docs.aws.amazon.com/goto/WebAPI/elasticloadbalancingv2-2015-12-01/DescribeSSLPoliciesInput">AWS
-   * API Reference</a></p>
    */
   class AWS_ELASTICLOADBALANCINGV2_API DescribeSSLPoliciesRequest : public ElasticLoadBalancingv2Request
   {
@@ -37,6 +33,11 @@ namespace Model
     DescribeSSLPoliciesRequest();
     Aws::String SerializePayload() const override;
 
+
+  protected:
+    void DumpBodyToUrl(Aws::Http::URI& uri ) const override;
+
+  public:
     /**
      * <p>The names of the policies.</p>
      */

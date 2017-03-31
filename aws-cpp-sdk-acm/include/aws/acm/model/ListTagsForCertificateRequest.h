@@ -34,9 +34,10 @@ namespace Model
 
     Aws::Http::HeaderValueCollection GetRequestSpecificHeaders() const override;
 
+
     /**
      * <p>String that contains the ARN of the ACM Certificate for which you want to
-     * list the tags. This must be of the form:</p> <p>
+     * list the tags. This has the following form:</p> <p>
      * <code>arn:aws:acm:region:123456789012:certificate/12345678-1234-1234-1234-123456789012</code>
      * </p> <p>For more information about ARNs, see <a
      * href="http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html">Amazon
@@ -46,7 +47,7 @@ namespace Model
 
     /**
      * <p>String that contains the ARN of the ACM Certificate for which you want to
-     * list the tags. This must be of the form:</p> <p>
+     * list the tags. This has the following form:</p> <p>
      * <code>arn:aws:acm:region:123456789012:certificate/12345678-1234-1234-1234-123456789012</code>
      * </p> <p>For more information about ARNs, see <a
      * href="http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html">Amazon
@@ -56,7 +57,7 @@ namespace Model
 
     /**
      * <p>String that contains the ARN of the ACM Certificate for which you want to
-     * list the tags. This must be of the form:</p> <p>
+     * list the tags. This has the following form:</p> <p>
      * <code>arn:aws:acm:region:123456789012:certificate/12345678-1234-1234-1234-123456789012</code>
      * </p> <p>For more information about ARNs, see <a
      * href="http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html">Amazon
@@ -66,7 +67,7 @@ namespace Model
 
     /**
      * <p>String that contains the ARN of the ACM Certificate for which you want to
-     * list the tags. This must be of the form:</p> <p>
+     * list the tags. This has the following form:</p> <p>
      * <code>arn:aws:acm:region:123456789012:certificate/12345678-1234-1234-1234-123456789012</code>
      * </p> <p>For more information about ARNs, see <a
      * href="http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html">Amazon
@@ -76,7 +77,7 @@ namespace Model
 
     /**
      * <p>String that contains the ARN of the ACM Certificate for which you want to
-     * list the tags. This must be of the form:</p> <p>
+     * list the tags. This has the following form:</p> <p>
      * <code>arn:aws:acm:region:123456789012:certificate/12345678-1234-1234-1234-123456789012</code>
      * </p> <p>For more information about ARNs, see <a
      * href="http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html">Amazon
@@ -86,7 +87,7 @@ namespace Model
 
     /**
      * <p>String that contains the ARN of the ACM Certificate for which you want to
-     * list the tags. This must be of the form:</p> <p>
+     * list the tags. This has the following form:</p> <p>
      * <code>arn:aws:acm:region:123456789012:certificate/12345678-1234-1234-1234-123456789012</code>
      * </p> <p>For more information about ARNs, see <a
      * href="http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html">Amazon
@@ -96,7 +97,7 @@ namespace Model
 
     /**
      * <p>String that contains the ARN of the ACM Certificate for which you want to
-     * list the tags. This must be of the form:</p> <p>
+     * list the tags. This has the following form:</p> <p>
      * <code>arn:aws:acm:region:123456789012:certificate/12345678-1234-1234-1234-123456789012</code>
      * </p> <p>For more information about ARNs, see <a
      * href="http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html">Amazon

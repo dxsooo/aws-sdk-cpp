@@ -26,9 +26,6 @@ namespace Model
 {
 
   /**
-   * <p>Contains the parameters for RemoveTags.</p><p><h3>See Also:</h3>   <a
-   * href="http://docs.aws.amazon.com/goto/WebAPI/elasticloadbalancingv2-2015-12-01/RemoveTagsInput">AWS
-   * API Reference</a></p>
    */
   class AWS_ELASTICLOADBALANCINGV2_API RemoveTagsRequest : public ElasticLoadBalancingv2Request
   {
@@ -36,6 +33,11 @@ namespace Model
     RemoveTagsRequest();
     Aws::String SerializePayload() const override;
 
+
+  protected:
+    void DumpBodyToUrl(Aws::Http::URI& uri ) const override;
+
+  public:
     /**
      * <p>The Amazon Resource Name (ARN) of the resource.</p>
      */

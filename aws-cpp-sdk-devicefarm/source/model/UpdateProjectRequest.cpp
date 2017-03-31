@@ -23,7 +23,9 @@ using namespace Aws::Utils;
 
 UpdateProjectRequest::UpdateProjectRequest() : 
     m_arnHasBeenSet(false),
-    m_nameHasBeenSet(false)
+    m_nameHasBeenSet(false),
+    m_defaultJobTimeoutMinutes(0),
+    m_defaultJobTimeoutMinutesHasBeenSet(false)
 {
 }
 
@@ -43,6 +45,12 @@ Aws::String UpdateProjectRequest::SerializePayload() const
 
   }
 
+  if(m_defaultJobTimeoutMinutesHasBeenSet)
+  {
+   payload.WithInteger("defaultJobTimeoutMinutes", m_defaultJobTimeoutMinutes);
+
+  }
+
   return payload.WriteReadable();
 }
 
@@ -53,6 +61,7 @@ Aws::Http::HeaderValueCollection UpdateProjectRequest::GetRequestSpecificHeaders
   return headers;
 
 }
+
 
 
 

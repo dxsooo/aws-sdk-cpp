@@ -23,7 +23,9 @@ using namespace Aws::Utils;
 
 PutEvaluationsRequest::PutEvaluationsRequest() : 
     m_evaluationsHasBeenSet(false),
-    m_resultTokenHasBeenSet(false)
+    m_resultTokenHasBeenSet(false),
+    m_testMode(false),
+    m_testModeHasBeenSet(false)
 {
 }
 
@@ -48,6 +50,12 @@ Aws::String PutEvaluationsRequest::SerializePayload() const
 
   }
 
+  if(m_testModeHasBeenSet)
+  {
+   payload.WithBool("TestMode", m_testMode);
+
+  }
+
   return payload.WriteReadable();
 }
 
@@ -58,6 +66,7 @@ Aws::Http::HeaderValueCollection PutEvaluationsRequest::GetRequestSpecificHeader
   return headers;
 
 }
+
 
 
 

@@ -31,7 +31,10 @@ CreateDeploymentGroupRequest::CreateDeploymentGroupRequest() :
     m_serviceRoleArnHasBeenSet(false),
     m_triggerConfigurationsHasBeenSet(false),
     m_alarmConfigurationHasBeenSet(false),
-    m_autoRollbackConfigurationHasBeenSet(false)
+    m_autoRollbackConfigurationHasBeenSet(false),
+    m_deploymentStyleHasBeenSet(false),
+    m_blueGreenDeploymentConfigurationHasBeenSet(false),
+    m_loadBalancerInfoHasBeenSet(false)
 {
 }
 
@@ -119,6 +122,24 @@ Aws::String CreateDeploymentGroupRequest::SerializePayload() const
 
   }
 
+  if(m_deploymentStyleHasBeenSet)
+  {
+   payload.WithObject("deploymentStyle", m_deploymentStyle.Jsonize());
+
+  }
+
+  if(m_blueGreenDeploymentConfigurationHasBeenSet)
+  {
+   payload.WithObject("blueGreenDeploymentConfiguration", m_blueGreenDeploymentConfiguration.Jsonize());
+
+  }
+
+  if(m_loadBalancerInfoHasBeenSet)
+  {
+   payload.WithObject("loadBalancerInfo", m_loadBalancerInfo.Jsonize());
+
+  }
+
   return payload.WriteReadable();
 }
 
@@ -129,6 +150,7 @@ Aws::Http::HeaderValueCollection CreateDeploymentGroupRequest::GetRequestSpecifi
   return headers;
 
 }
+
 
 
 

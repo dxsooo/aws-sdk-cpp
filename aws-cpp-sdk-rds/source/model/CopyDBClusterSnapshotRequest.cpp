@@ -22,6 +22,10 @@ using namespace Aws::Utils;
 CopyDBClusterSnapshotRequest::CopyDBClusterSnapshotRequest() : 
     m_sourceDBClusterSnapshotIdentifierHasBeenSet(false),
     m_targetDBClusterSnapshotIdentifierHasBeenSet(false),
+    m_kmsKeyIdHasBeenSet(false),
+    m_preSignedUrlHasBeenSet(false),
+    m_copyTags(false),
+    m_copyTagsHasBeenSet(false),
     m_tagsHasBeenSet(false)
 {
 }
@@ -40,6 +44,21 @@ Aws::String CopyDBClusterSnapshotRequest::SerializePayload() const
     ss << "TargetDBClusterSnapshotIdentifier=" << StringUtils::URLEncode(m_targetDBClusterSnapshotIdentifier.c_str()) << "&";
   }
 
+  if(m_kmsKeyIdHasBeenSet)
+  {
+    ss << "KmsKeyId=" << StringUtils::URLEncode(m_kmsKeyId.c_str()) << "&";
+  }
+
+  if(m_preSignedUrlHasBeenSet)
+  {
+    ss << "PreSignedUrl=" << StringUtils::URLEncode(m_preSignedUrl.c_str()) << "&";
+  }
+
+  if(m_copyTagsHasBeenSet)
+  {
+    ss << "CopyTags=" << std::boolalpha << m_copyTags << "&";
+  }
+
   if(m_tagsHasBeenSet)
   {
     unsigned tagsCount = 1;
@@ -54,3 +73,8 @@ Aws::String CopyDBClusterSnapshotRequest::SerializePayload() const
   return ss.str();
 }
 
+
+void  CopyDBClusterSnapshotRequest::DumpBodyToUrl(Aws::Http::URI& uri ) const
+{
+  uri.SetQueryString(SerializePayload());
+}

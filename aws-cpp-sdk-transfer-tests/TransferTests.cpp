@@ -28,10 +28,13 @@
 #include <aws/s3/model/HeadBucketRequest.h>
 #include <aws/s3/model/DeleteBucketRequest.h>
 #include <aws/s3/model/CreateBucketRequest.h>
+#include <aws/s3/model/PutBucketVersioningRequest.h>
+#include <aws/s3/model/ListObjectVersionsRequest.h>
 #include <aws/core/platform/FileSystem.h>
 #include <aws/core/utils/HashingUtils.h>
 #include <aws/core/utils/StringUtils.h>
 #include <aws/core/platform/Platform.h>
+#include <aws/testing/TestingEnvironment.h>
 
 #include <aws/transfer/TransferManager.h>
 #include <iostream>
@@ -70,7 +73,7 @@ static const char* BIG_FILE_KEY = "BigFileKey";
 static const char* CANCEL_TEST_FILE_NAME = "CancelTestFile.txt";
 static const char* CANCEL_FILE_KEY = "CancelFileKey";
 
-static const char* TEST_BUCKET_NAME_BASE = "transferintegrationtestbucket";
+static const char* TEST_BUCKET_NAME_BASE = "awstransferintegrationtestbucket";
 static const unsigned SMALL_TEST_SIZE = MB5 / 2;
 static const unsigned MEDIUM_TEST_SIZE = MB5 * 3 / 2;
 
@@ -115,6 +118,8 @@ class ScopedTestFile
         {
             Aws::OFStream testFile;
             testFile.open(fileName.c_str());
+            assert(testFile.good());
+
             auto putStringLength = putString.length();
             for (size_t i = putStringLength; i <= fileSize; i += putStringLength)
             {
@@ -139,34 +144,11 @@ public:
 
     static std::shared_ptr<S3Client> m_s3Client;
 
-    static Aws::String m_testFileName;
-    static Aws::String m_smallTestFileName;
-    static Aws::String m_bigTestFileName;
-    static Aws::String m_mediumTestFileName;
-    static Aws::String m_contentTestFileName;
-    static Aws::String m_cancelTestFileName;
-    static Aws::String m_multiPartContentFileName;
-    static Aws::String m_nonsenseFileName;
-
 protected:
 
-    static const char* GetTestBucketName()
+    static Aws::String GetTestBucketName()
     {
-        static Aws::String randomizedBucketName;
-        if (randomizedBucketName.length())
-        {
-            return randomizedBucketName.c_str();
-        }
-        srand(static_cast<unsigned int>(time(NULL)));
-
-        static const uint32_t cNumExtraChars = 5;
-        static const uint32_t cLettersToRandomize = 26;
-        randomizedBucketName = TEST_BUCKET_NAME_BASE;
-        for (uint32_t i = 0; i < cNumExtraChars; ++i)
-        {
-            randomizedBucketName += static_cast<char>('a' + rand() % cLettersToRandomize);
-        }
-        return randomizedBucketName.c_str();
+        return Aws::Testing::GetAwsResourcePrefix() + TEST_BUCKET_NAME_BASE;
     }
 
     static bool AreFilesSame(const Aws::String& fileName, const Aws::String& fileName2)
@@ -215,35 +197,37 @@ protected:
                                    const Aws::Map<Aws::String, Aws::String>& metadata)
     {
         Aws::String downloadFileName = MakeDownloadFileName(sourceFileName);
-        std::shared_ptr<TransferHandle> downloadPtr = transferManager.DownloadFile(bucket, key, downloadFileName);
 
-        ASSERT_EQ(true, downloadPtr->ShouldContinue());
-        ASSERT_EQ(TransferDirection::DOWNLOAD, downloadPtr->GetTransferDirection());
-        downloadPtr->WaitUntilFinished();
+        {
+            std::shared_ptr<TransferHandle> downloadPtr = transferManager.DownloadFile(bucket, key, [=](){ 
+                return Aws::New<Aws::FStream>(ALLOCATION_TAG, downloadFileName.c_str(), std::ios_base::out | std::ios_base::in | std::ios_base::binary | std::ios_base::trunc);
+            });
 
-        ASSERT_FALSE(downloadPtr->IsMultipart());
-        ASSERT_TRUE(downloadPtr->GetMultiPartId().empty());
-        ASSERT_EQ(TransferStatus::COMPLETED, downloadPtr->GetStatus());
-        ASSERT_EQ(1u, downloadPtr->GetCompletedParts().size());
-        ASSERT_EQ(0u, downloadPtr->GetFailedParts().size());
-        ASSERT_EQ(0u, downloadPtr->GetPendingParts().size());
+            ASSERT_EQ(true, downloadPtr->ShouldContinue());
+            ASSERT_EQ(TransferDirection::DOWNLOAD, downloadPtr->GetTransferDirection());
+            downloadPtr->WaitUntilFinished();
 
-        auto fileStream = Aws::MakeShared<Aws::FStream>(ALLOCATION_TAG, sourceFileName.c_str(), std::ios_base::in | std::ios_base::binary);
-        ASSERT_TRUE(fileStream->good());
+            ASSERT_EQ(TransferStatus::COMPLETED, downloadPtr->GetStatus());
+            ASSERT_EQ(0u, downloadPtr->GetFailedParts().size());
+            ASSERT_EQ(0u, downloadPtr->GetPendingParts().size());
 
-        fileStream->seekg(0, std::ios_base::end);
-        size_t sourceLength = static_cast<size_t>(fileStream->tellg());
-        fileStream->close();
-        fileStream = nullptr;
+            auto fileStream = Aws::MakeShared<Aws::FStream>(ALLOCATION_TAG, sourceFileName.c_str(), std::ios_base::in | std::ios_base::binary);
+            ASSERT_TRUE(fileStream->good());
 
-        ASSERT_EQ(downloadPtr->GetBytesTotalSize(), sourceLength);
-        ASSERT_EQ(downloadPtr->GetBytesTransferred(), sourceLength);
+            fileStream->seekg(0, std::ios_base::end);
+            size_t sourceLength = static_cast<size_t>(fileStream->tellg());
+            fileStream->close();
+            fileStream = nullptr;
 
-        ASSERT_STREQ(contentType.c_str(), downloadPtr->GetContentType().c_str());
+            ASSERT_EQ(downloadPtr->GetBytesTotalSize(), sourceLength);
+            ASSERT_EQ(downloadPtr->GetBytesTransferred(), sourceLength);
 
-        ASSERT_TRUE(AreFilesSame(downloadFileName, sourceFileName));
+            ASSERT_STREQ(contentType.c_str(), downloadPtr->GetContentType().c_str());
 
-        ASSERT_TRUE(metadata == downloadPtr->GetMetadata());
+            ASSERT_TRUE(AreFilesSame(downloadFileName, sourceFileName));
+
+            ASSERT_TRUE(metadata == downloadPtr->GetMetadata());
+        }
 
         Aws::FileSystem::RemoveFileIfExists(downloadFileName.c_str());
     }
@@ -269,34 +253,49 @@ protected:
 
         auto testDirectory = GetTestFilesDirectory();
 
-        m_testFileName = MakeFilePath( TEST_FILE_NAME );
-        m_smallTestFileName = MakeFilePath( SMALL_TEST_FILE_NAME );
-        m_bigTestFileName = MakeFilePath( BIG_TEST_FILE_NAME );
-        m_mediumTestFileName = MakeFilePath( MEDIUM_TEST_FILE_NAME );
-        m_contentTestFileName = MakeFilePath( CONTENT_TEST_FILE_NAME );
-        m_cancelTestFileName = MakeFilePath( CANCEL_TEST_FILE_NAME );
-        m_multiPartContentFileName = MakeFilePath( MULTI_PART_CONTENT_FILE );
-
-        m_nonsenseFileName = MakeFilePath( NONSENSE_FILE_NAME );
+        Aws::FileSystem::DeepDeleteDirectory(GetTestFilesDirectory().c_str());
     }
 
     static bool EmptyBucket(const Aws::String& bucketName)
     {
-        ListObjectsRequest listObjectsRequest;
-        listObjectsRequest.SetBucket(bucketName);
+        bool done = false;
+        ListObjectVersionsRequest listObjectVersionsRequest;
+        listObjectVersionsRequest.SetBucket(bucketName);
 
-        ListObjectsOutcome listObjectsOutcome = m_s3Client->ListObjects(listObjectsRequest);
+        Aws::Vector<Aws::S3::Model::ObjectVersion> versions;
+        while(!done)
+        {
+            ListObjectVersionsOutcome listObjectVersionsOutcome = m_s3Client->ListObjectVersions(listObjectVersionsRequest);
 
-        if (!listObjectsOutcome.IsSuccess())
-            return false;
+            if (!listObjectVersionsOutcome.IsSuccess())
+                return false;
 
-        for (const auto& object : listObjectsOutcome.GetResult().GetContents())
+            const auto& versionSet = listObjectVersionsOutcome.GetResult().GetVersions();
+            std::copy(versionSet.cbegin(), versionSet.cend(), std::back_inserter(versions));
+
+            const auto& nextMarker = listObjectVersionsOutcome.GetResult().GetNextKeyMarker();
+            if(nextMarker.size() > 0)
+            {
+                listObjectVersionsRequest.SetKeyMarker(nextMarker);
+            }
+            else
+            {
+                done = true;
+            }
+        }
+
+        for (const auto& objectVersion : versions)
         {
             DeleteObjectRequest deleteObjectRequest;
             deleteObjectRequest.SetBucket(bucketName);
-            deleteObjectRequest.SetKey(object.GetKey());
+            deleteObjectRequest.SetKey(objectVersion.GetKey());
+            if(objectVersion.GetVersionId().size() > 0)
+            {
+                deleteObjectRequest.SetVersionId(objectVersion.GetVersionId());
+            }
             m_s3Client->DeleteObject(deleteObjectRequest);
         }
+
         return true;
     }
 
@@ -356,6 +355,7 @@ protected:
 
         m_s3Client->AbortMultipartUpload(abortRequest);
     }
+
     static void TearDownTestCase()
     {
         // Most of our tests try to clean stuff out, let's just make sure everything propagated so we don't throw out pointless errors
@@ -368,22 +368,15 @@ protected:
         m_s3Client = nullptr;
     } 
 
+
 };
 
 std::shared_ptr<S3Client> TransferTests::m_s3Client(nullptr);
 
-Aws::String TransferTests::m_testFileName;
-Aws::String TransferTests::m_smallTestFileName;
-Aws::String TransferTests::m_bigTestFileName;
-Aws::String TransferTests::m_mediumTestFileName;
-Aws::String TransferTests::m_contentTestFileName;
-Aws::String TransferTests::m_cancelTestFileName;
-Aws::String TransferTests::m_multiPartContentFileName;
-Aws::String TransferTests::m_nonsenseFileName;
-
 TEST_F(TransferTests, TransferManager_SinglePartUploadTest)
 {
-    ScopedTestFile testFile(m_testFileName, MB5, testString);
+    Aws::String testFileName = MakeFilePath( TEST_FILE_NAME );
+    ScopedTestFile testFile(testFileName, MB5, testString);
 
     if (EmptyBucket(GetTestBucketName()))
     {
@@ -402,12 +395,12 @@ TEST_F(TransferTests, TransferManager_SinglePartUploadTest)
     TransferManager transferManager(transferManagerConfig);
 
     // Test with default behavior of using file name as key
-    auto requestPtr = transferManager.UploadFile(m_testFileName, GetTestBucketName(), TEST_FILE_KEY, 
+    auto requestPtr = transferManager.UploadFile(testFileName, GetTestBucketName(), TEST_FILE_KEY, 
                                                                         "text/plain", Aws::Map<Aws::String, Aws::String>());
     
     ASSERT_EQ(true, requestPtr->ShouldContinue());
     ASSERT_EQ(TransferDirection::UPLOAD, requestPtr->GetTransferDirection());
-    ASSERT_STREQ(m_testFileName.c_str(), requestPtr->GetTargetFilePath().c_str());
+    ASSERT_STREQ(testFileName.c_str(), requestPtr->GetTargetFilePath().c_str());
     requestPtr->WaitUntilFinished();
     ASSERT_EQ(TransferStatus::COMPLETED, requestPtr->GetStatus());
     ASSERT_EQ(1u, requestPtr->GetCompletedParts().size()); // Should be just under 5 megs
@@ -419,6 +412,7 @@ TEST_F(TransferTests, TransferManager_SinglePartUploadTest)
 
     uint64_t fileSize = requestPtr->GetBytesTotalSize();
     ASSERT_TRUE(fileSize == (MB5 / testStrLen * testStrLen));
+    ASSERT_TRUE(fileSize == requestPtr->GetBytesTransferred());
 
     HeadObjectRequest headObjectRequest;
     headObjectRequest.WithBucket(GetTestBucketName())
@@ -427,7 +421,7 @@ TEST_F(TransferTests, TransferManager_SinglePartUploadTest)
     ASSERT_TRUE(m_s3Client->HeadObject(headObjectRequest).IsSuccess());
 
     VerifyUploadedFile(transferManager,
-                       m_testFileName,
+                       testFileName,
                        GetTestBucketName(),
                        TEST_FILE_KEY,
                        "text/plain",
@@ -437,7 +431,8 @@ TEST_F(TransferTests, TransferManager_SinglePartUploadTest)
 
 TEST_F(TransferTests, TransferManager_SmallTest)
 {
-    ScopedTestFile testFile(m_smallTestFileName, SMALL_TEST_SIZE, testString);
+    Aws::String smallTestFileName = MakeFilePath( SMALL_TEST_FILE_NAME );
+    ScopedTestFile testFile(smallTestFileName, SMALL_TEST_SIZE, testString);
 
     if (EmptyBucket(GetTestBucketName()))
     {
@@ -462,11 +457,11 @@ TEST_F(TransferTests, TransferManager_SmallTest)
     transferManagerConfig.maxParallelTransfers = 1;
     TransferManager transferManager(transferManagerConfig);
 
-    std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(m_smallTestFileName, GetTestBucketName(), SMALL_FILE_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
+    std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(smallTestFileName, GetTestBucketName(), SMALL_FILE_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
 
     ASSERT_EQ(true, requestPtr->ShouldContinue());
     ASSERT_EQ(TransferDirection::UPLOAD, requestPtr->GetTransferDirection());
-    ASSERT_STREQ(m_smallTestFileName.c_str(), requestPtr->GetTargetFilePath().c_str());
+    ASSERT_STREQ(smallTestFileName.c_str(), requestPtr->GetTargetFilePath().c_str());
     requestPtr->WaitUntilFinished();
 
     ASSERT_EQ(TransferStatus::COMPLETED, requestPtr->GetStatus());
@@ -479,6 +474,7 @@ TEST_F(TransferTests, TransferManager_SmallTest)
 
     uint64_t fileSize = requestPtr->GetBytesTotalSize();
     ASSERT_TRUE(fileSize == (SMALL_TEST_SIZE / testStrLen * testStrLen));
+    ASSERT_TRUE(fileSize == requestPtr->GetBytesTransferred());
 
     HeadObjectRequest headObjectRequest;
     headObjectRequest.WithBucket(GetTestBucketName())
@@ -490,7 +486,7 @@ TEST_F(TransferTests, TransferManager_SmallTest)
     ASSERT_STREQ(requestPtr->GetContentType().c_str(), outcome.GetResult().GetContentType().c_str());
 
     VerifyUploadedFile(transferManager,
-                       m_smallTestFileName,
+                       smallTestFileName,
                        GetTestBucketName(),
                        SMALL_FILE_KEY,
                        "text/plain",
@@ -500,7 +496,8 @@ TEST_F(TransferTests, TransferManager_SmallTest)
 
 TEST_F(TransferTests, TransferManager_ContentTest)
 {
-    ScopedTestFile testFile(m_contentTestFileName, CONTENT_TEST_FILE_TEXT);
+    Aws::String contentTestFileName = MakeFilePath( CONTENT_TEST_FILE_NAME );
+    ScopedTestFile testFile(contentTestFileName, CONTENT_TEST_FILE_TEXT);
 
     if (EmptyBucket(GetTestBucketName()))
     {
@@ -522,11 +519,11 @@ TEST_F(TransferTests, TransferManager_ContentTest)
     TransferManager transferManager(transferManagerConfig);
 
     std::shared_ptr<TransferHandle> requestPtr = 
-            transferManager.UploadFile(m_contentTestFileName, GetTestBucketName(), CONTENT_FILE_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
+            transferManager.UploadFile(contentTestFileName, GetTestBucketName(), CONTENT_FILE_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
 
     ASSERT_EQ(true, requestPtr->ShouldContinue());
     ASSERT_EQ(TransferDirection::UPLOAD, requestPtr->GetTransferDirection());
-    ASSERT_STREQ(m_contentTestFileName.c_str(), requestPtr->GetTargetFilePath().c_str());
+    ASSERT_STREQ(contentTestFileName.c_str(), requestPtr->GetTargetFilePath().c_str());
     requestPtr->WaitUntilFinished();
     ASSERT_EQ(TransferStatus::COMPLETED, requestPtr->GetStatus());
     ASSERT_EQ(1u, requestPtr->GetCompletedParts().size()); // Should be tiny
@@ -538,6 +535,7 @@ TEST_F(TransferTests, TransferManager_ContentTest)
 
     uint64_t fileSize = requestPtr->GetBytesTotalSize();
     ASSERT_TRUE(fileSize == strlen(CONTENT_TEST_FILE_TEXT));
+    ASSERT_TRUE(fileSize == requestPtr->GetBytesTransferred());
 
     HeadObjectRequest headObjectRequest;
     headObjectRequest.WithBucket(GetTestBucketName())
@@ -546,7 +544,7 @@ TEST_F(TransferTests, TransferManager_ContentTest)
     ASSERT_TRUE(m_s3Client->HeadObject(headObjectRequest).IsSuccess());
 
     VerifyUploadedFile(transferManager,
-                       m_contentTestFileName,
+                       contentTestFileName,
                        GetTestBucketName(),
                        CONTENT_FILE_KEY,
                        "text/plain",
@@ -665,7 +663,8 @@ TEST_F(TransferTests, TransferManager_DirectoryUploadAndDownloadTest)
 // Test of a basic multi part upload - 7.5 megs
 TEST_F(TransferTests, TransferManager_MediumTest)
 {
-    ScopedTestFile testFile(m_mediumTestFileName, MEDIUM_TEST_SIZE, testString);
+    Aws::String mediumTestFileName = MakeFilePath( MEDIUM_TEST_FILE_NAME );
+    ScopedTestFile testFile(mediumTestFileName, MEDIUM_TEST_SIZE, testString);
 
     if (EmptyBucket(GetTestBucketName()))
     {
@@ -684,18 +683,18 @@ TEST_F(TransferTests, TransferManager_MediumTest)
 
     TransferManager transferManager(transferManagerConfig);
 
-    std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(m_mediumTestFileName, GetTestBucketName(), MEDIUM_FILE_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
+    std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(mediumTestFileName, GetTestBucketName(), MEDIUM_FILE_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
 
     ASSERT_EQ(true, requestPtr->ShouldContinue());
     ASSERT_EQ(TransferDirection::UPLOAD, requestPtr->GetTransferDirection());
-    ASSERT_STREQ(m_mediumTestFileName.c_str(), requestPtr->GetTargetFilePath().c_str());    
+    ASSERT_STREQ(mediumTestFileName.c_str(), requestPtr->GetTargetFilePath().c_str());    
     requestPtr->WaitUntilFinished();
 
     size_t retries = 0;
     //just make sure we don't fail because a the put object failed. (e.g. network problems or interuptions)
     while (requestPtr->GetStatus() == TransferStatus::FAILED && retries++ < 5)
     {
-        transferManager.RetryUpload(m_mediumTestFileName, requestPtr);
+        transferManager.RetryUpload(mediumTestFileName, requestPtr);
         requestPtr->WaitUntilFinished();
     }
 
@@ -710,6 +709,7 @@ TEST_F(TransferTests, TransferManager_MediumTest)
 
     uint64_t fileSize = requestPtr->GetBytesTotalSize();
     ASSERT_TRUE(fileSize == MEDIUM_TEST_SIZE / testStrLen * testStrLen);
+    ASSERT_TRUE(fileSize == requestPtr->GetBytesTransferred());
 
     HeadObjectRequest headObjectRequest;
     headObjectRequest.WithBucket(GetTestBucketName())
@@ -720,7 +720,7 @@ TEST_F(TransferTests, TransferManager_MediumTest)
     ASSERT_STREQ(requestPtr->GetContentType().c_str(), outcome.GetResult().GetContentType().c_str());
 
     VerifyUploadedFile(transferManager,
-                       m_mediumTestFileName,
+                       mediumTestFileName,
                        GetTestBucketName(),
                        MEDIUM_FILE_KEY,
                        "text/plain",
@@ -729,7 +729,8 @@ TEST_F(TransferTests, TransferManager_MediumTest)
 
 TEST_F(TransferTests, TransferManager_BigTest)
 {
-    ScopedTestFile testFile(m_bigTestFileName, BIG_TEST_SIZE, testString);
+    Aws::String bigTestFileName = MakeFilePath( BIG_TEST_FILE_NAME );
+    ScopedTestFile testFile(bigTestFileName, BIG_TEST_SIZE, testString);
 
     if (EmptyBucket(GetTestBucketName()))
     {
@@ -747,18 +748,18 @@ TEST_F(TransferTests, TransferManager_BigTest)
     transferManagerConfig.s3Client = m_s3Client;
 
     TransferManager transferManager(transferManagerConfig);
-    std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(m_bigTestFileName, GetTestBucketName(), BIG_FILE_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
+    std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(bigTestFileName, GetTestBucketName(), BIG_FILE_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
 
     ASSERT_EQ(true, requestPtr->ShouldContinue());
     ASSERT_EQ(TransferDirection::UPLOAD, requestPtr->GetTransferDirection());
-    ASSERT_STREQ(m_bigTestFileName.c_str(), requestPtr->GetTargetFilePath().c_str());
+    ASSERT_STREQ(bigTestFileName.c_str(), requestPtr->GetTargetFilePath().c_str());
     requestPtr->WaitUntilFinished();
 
     size_t retries = 0;
     //just make sure we don't fail because an upload part failed. (e.g. network problems or interuptions)
     while (requestPtr->GetStatus() == TransferStatus::FAILED && retries++ < 5)
     {
-        transferManager.RetryUpload(m_bigTestFileName.c_str(), requestPtr);
+        transferManager.RetryUpload(bigTestFileName.c_str(), requestPtr);
         requestPtr->WaitUntilFinished();
     }
 
@@ -773,6 +774,7 @@ TEST_F(TransferTests, TransferManager_BigTest)
 
     uint64_t fileSize = requestPtr->GetBytesTotalSize();
     ASSERT_TRUE(fileSize == BIG_TEST_SIZE / testStrLen * testStrLen);
+    ASSERT_TRUE(fileSize == requestPtr->GetBytesTransferred());
 
     HeadObjectRequest headObjectRequest;
     headObjectRequest.WithBucket(GetTestBucketName())
@@ -781,7 +783,7 @@ TEST_F(TransferTests, TransferManager_BigTest)
     ASSERT_TRUE(m_s3Client->HeadObject(headObjectRequest).IsSuccess());
 
     VerifyUploadedFile(transferManager,
-                       m_bigTestFileName,
+                       bigTestFileName,
                        GetTestBucketName(),
                        BIG_FILE_KEY,
                        "text/plain",
@@ -789,9 +791,10 @@ TEST_F(TransferTests, TransferManager_BigTest)
 }
 
 
-TEST_F(TransferTests, TransferManager_CancelAndRetryTest)
+TEST_F(TransferTests, TransferManager_CancelAndRetryUploadTest)
 {
-    ScopedTestFile testFile(m_cancelTestFileName, CANCEL_TEST_SIZE, testString);
+    Aws::String cancelTestFileName = MakeFilePath( CANCEL_TEST_FILE_NAME );
+    ScopedTestFile testFile(cancelTestFileName, CANCEL_TEST_SIZE, testString);
 
     ListMultipartUploadsRequest listMultipartRequest;
     listMultipartRequest.WithBucket(GetTestBucketName());
@@ -827,7 +830,7 @@ TEST_F(TransferTests, TransferManager_CancelAndRetryTest)
     transferManagerConfig.s3Client = m_s3Client;
     TransferManager transferManager(transferManagerConfig);
 
-    std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(m_cancelTestFileName, GetTestBucketName(), CANCEL_FILE_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
+    std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(cancelTestFileName, GetTestBucketName(), CANCEL_FILE_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
 
     uint64_t fileSize = requestPtr->GetBytesTotalSize();
     ASSERT_EQ(fileSize, CANCEL_TEST_SIZE / testStrLen * testStrLen);
@@ -836,7 +839,7 @@ TEST_F(TransferTests, TransferManager_CancelAndRetryTest)
     //if this is the case, the request actually failed before we could cancel it and we need to try again.
     while (requestPtr->GetCompletedParts().size() < 15u)
     {        
-        requestPtr = transferManager.RetryUpload(m_cancelTestFileName, requestPtr); 
+        requestPtr = transferManager.RetryUpload(cancelTestFileName, requestPtr); 
         requestPtr->WaitUntilFinished();
     }
 
@@ -858,14 +861,14 @@ TEST_F(TransferTests, TransferManager_CancelAndRetryTest)
     ASSERT_FALSE(m_s3Client->HeadObject(headObjectRequest).IsSuccess());
 
     retryInProgress = true;
-    requestPtr = transferManager.RetryUpload(m_cancelTestFileName, requestPtr);
+    requestPtr = transferManager.RetryUpload(cancelTestFileName, requestPtr);
     requestPtr->WaitUntilFinished();
 
     size_t retries = 0;
     //just make sure we don't fail because an upload part failed. (e.g. network problems or interuptions)
     while (requestPtr->GetStatus() == TransferStatus::FAILED && retries++ < 5)
     {
-        transferManager.RetryUpload(m_cancelTestFileName, requestPtr);
+        transferManager.RetryUpload(cancelTestFileName, requestPtr);
         requestPtr->WaitUntilFinished();
     }
 
@@ -874,6 +877,8 @@ TEST_F(TransferTests, TransferManager_CancelAndRetryTest)
     ASSERT_TRUE(completionCheckDone);
     ASSERT_TRUE(completedPartsStayedCompletedDuringRetry);
     ASSERT_STREQ("text/plain", requestPtr->GetContentType().c_str());
+
+    ASSERT_TRUE(fileSize == requestPtr->GetBytesTransferred());
 
     listMultipartOutcome = m_s3Client->ListMultipartUploads(listMultipartRequest);
 
@@ -886,16 +891,17 @@ TEST_F(TransferTests, TransferManager_CancelAndRetryTest)
     ASSERT_TRUE(m_s3Client->HeadObject(headObjectRequest).IsSuccess());
 
     VerifyUploadedFile(transferManager,
-                       m_cancelTestFileName,
+                       cancelTestFileName,
                        GetTestBucketName(),
                        CANCEL_FILE_KEY,
                        "text/plain",
                        Aws::Map<Aws::String, Aws::String>());
 }
 
-TEST_F(TransferTests, TransferManager_AbortAndRetryTest)
+TEST_F(TransferTests, TransferManager_AbortAndRetryUploadTest)
 {
-    ScopedTestFile testFile(m_cancelTestFileName, CANCEL_TEST_SIZE, testString);
+    Aws::String cancelTestFileName = MakeFilePath( CANCEL_TEST_FILE_NAME );
+    ScopedTestFile testFile(cancelTestFileName, CANCEL_TEST_SIZE, testString);
 
     ListMultipartUploadsRequest listMultipartRequest;
     listMultipartRequest.WithBucket(GetTestBucketName());
@@ -932,7 +938,7 @@ TEST_F(TransferTests, TransferManager_AbortAndRetryTest)
 
     transferManagerConfig.s3Client = m_s3Client;
     TransferManager transferManager(transferManagerConfig);
-    requestPtr = transferManager.UploadFile(m_cancelTestFileName, GetTestBucketName(), CANCEL_FILE_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
+    requestPtr = transferManager.UploadFile(cancelTestFileName, GetTestBucketName(), CANCEL_FILE_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
 
     uint64_t fileSize = requestPtr->GetBytesTotalSize();
     ASSERT_EQ(fileSize, CANCEL_TEST_SIZE / testStrLen * testStrLen);
@@ -942,7 +948,7 @@ TEST_F(TransferTests, TransferManager_AbortAndRetryTest)
     //if this is the case, the request actually failed before we could cancel it and we need to try again.
     while (requestPtr->GetCompletedParts().size() < 15u)
     {
-        requestPtr = transferManager.RetryUpload(m_cancelTestFileName, requestPtr);
+        requestPtr = transferManager.RetryUpload(cancelTestFileName, requestPtr);
         requestPtr->WaitUntilFinished();
     }
 
@@ -966,7 +972,7 @@ TEST_F(TransferTests, TransferManager_AbortAndRetryTest)
 
     retryInProgress = true;
     std::shared_ptr<TransferHandle> tempPtr = requestPtr;
-    requestPtr = transferManager.RetryUpload(m_cancelTestFileName, tempPtr);
+    requestPtr = transferManager.RetryUpload(cancelTestFileName, tempPtr);
     ASSERT_NE(requestPtr, tempPtr);
     requestPtr->WaitUntilFinished();
 
@@ -974,7 +980,7 @@ TEST_F(TransferTests, TransferManager_AbortAndRetryTest)
     //just make sure we don't fail because an upload part failed. (e.g. network problems or interuptions)
     while (requestPtr->GetStatus() == TransferStatus::FAILED && retries++ < 5)
     {
-        transferManager.RetryUpload(m_cancelTestFileName, requestPtr);
+        transferManager.RetryUpload(cancelTestFileName, requestPtr);
         requestPtr->WaitUntilFinished();
     }
 
@@ -982,6 +988,7 @@ TEST_F(TransferTests, TransferManager_AbortAndRetryTest)
     ASSERT_EQ(30u, requestPtr->GetCompletedParts().size());
     ASSERT_TRUE(completionCheckDone);
     ASSERT_FALSE(completedPartsStayedCompletedDuringRetry);
+    ASSERT_TRUE(fileSize == requestPtr->GetBytesTransferred());
 
     headObjectRequest.WithBucket(GetTestBucketName())
         .WithKey(CANCEL_FILE_KEY);
@@ -990,7 +997,7 @@ TEST_F(TransferTests, TransferManager_AbortAndRetryTest)
 
 
     VerifyUploadedFile(transferManager,
-                       m_cancelTestFileName,
+                       cancelTestFileName,
                        GetTestBucketName(),
                        CANCEL_FILE_KEY,
                        "text/plain",
@@ -999,7 +1006,8 @@ TEST_F(TransferTests, TransferManager_AbortAndRetryTest)
 
 TEST_F(TransferTests, TransferManager_MultiPartContentTest)
 {
-    ScopedTestFile testFile(m_multiPartContentFileName, MEDIUM_TEST_SIZE, MULTI_PART_CONTENT_TEXT);
+    Aws::String multiPartContentFileName = MakeFilePath( MULTI_PART_CONTENT_FILE );
+    ScopedTestFile testFile(multiPartContentFileName, MEDIUM_TEST_SIZE, MULTI_PART_CONTENT_TEXT);
 
     if (EmptyBucket(GetTestBucketName()))
     {
@@ -1017,7 +1025,7 @@ TEST_F(TransferTests, TransferManager_MultiPartContentTest)
     transferManagerConfig.s3Client = m_s3Client;
     TransferManager transferManager(transferManagerConfig);
     
-    std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(m_multiPartContentFileName, GetTestBucketName(), MULTI_PART_CONTENT_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
+    std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(multiPartContentFileName, GetTestBucketName(), MULTI_PART_CONTENT_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
 
     requestPtr->WaitUntilFinished();
 
@@ -1025,15 +1033,16 @@ TEST_F(TransferTests, TransferManager_MultiPartContentTest)
     //just make sure we don't fail because an upload part failed. (e.g. network problems or interuptions)
     while (requestPtr->GetStatus() == TransferStatus::FAILED && retries++ < 5)
     {
-        transferManager.RetryUpload(m_multiPartContentFileName, requestPtr);
+        transferManager.RetryUpload(multiPartContentFileName, requestPtr);
         requestPtr->WaitUntilFinished();
     }
 
     ASSERT_EQ(TransferStatus::COMPLETED, requestPtr->GetStatus());
     ASSERT_EQ(PARTS_IN_MEDIUM_TEST, requestPtr->GetCompletedParts().size()); // > 1 part
+    ASSERT_TRUE(requestPtr->GetBytesTotalSize() == requestPtr->GetBytesTransferred());
 
     VerifyUploadedFile(transferManager,
-                       m_multiPartContentFileName,
+                       multiPartContentFileName,
                        GetTestBucketName(),
                        MULTI_PART_CONTENT_KEY,
                        "text/plain",
@@ -1043,7 +1052,8 @@ TEST_F(TransferTests, TransferManager_MultiPartContentTest)
 // Single part upload with metadata specified
 TEST_F(TransferTests, TransferManager_SinglePartUploadWithMetadataTest)
 {
-    ScopedTestFile testFile(m_testFileName, MB5, testString);
+    Aws::String testFileName = MakeFilePath( TEST_FILE_NAME );
+    ScopedTestFile testFile(testFileName, MB5, testString);
 
     if (EmptyBucket(GetTestBucketName()))
     {
@@ -1065,10 +1075,11 @@ TEST_F(TransferTests, TransferManager_SinglePartUploadWithMetadataTest)
     transferManagerConfig.s3Client = m_s3Client;
     TransferManager transferManager(transferManagerConfig);
 
-    std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(m_testFileName, GetTestBucketName(), TEST_FILE_KEY, "text/plain", metadata);
+    std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(testFileName, GetTestBucketName(), TEST_FILE_KEY, "text/plain", metadata);
 
     requestPtr->WaitUntilFinished();
     ASSERT_EQ(TransferStatus::COMPLETED, requestPtr->GetStatus());
+    ASSERT_TRUE(requestPtr->GetBytesTotalSize() == requestPtr->GetBytesTransferred());
 
     // Check the metadata matches
     HeadObjectRequest headObjectRequest;
@@ -1084,7 +1095,7 @@ TEST_F(TransferTests, TransferManager_SinglePartUploadWithMetadataTest)
     ASSERT_EQ(metadata["key2"], headObjectMetadata["key2"]);
 
     VerifyUploadedFile(transferManager,
-                       m_testFileName,
+                       testFileName,
                        GetTestBucketName(),
                        TEST_FILE_KEY,
                        "text/plain",
@@ -1094,7 +1105,8 @@ TEST_F(TransferTests, TransferManager_SinglePartUploadWithMetadataTest)
 // Multipart upload with metadata specified
 TEST_F(TransferTests, MultipartUploadWithMetadataTest)
 {
-    ScopedTestFile testFile(m_mediumTestFileName, MEDIUM_TEST_SIZE, testString);
+    Aws::String mediumTestFileName = MakeFilePath( MEDIUM_TEST_FILE_NAME );
+    ScopedTestFile testFile(mediumTestFileName, MEDIUM_TEST_SIZE, testString);
 
     if (EmptyBucket(GetTestBucketName()))
     {
@@ -1120,7 +1132,7 @@ TEST_F(TransferTests, MultipartUploadWithMetadataTest)
     transferManagerConfig.s3Client = m_s3Client;
     TransferManager transferManager(transferManagerConfig);
 
-    std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(m_mediumTestFileName, GetTestBucketName(), MEDIUM_FILE_KEY, "text/plain", metadata);
+    std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(mediumTestFileName, GetTestBucketName(), MEDIUM_FILE_KEY, "text/plain", metadata);
 
     requestPtr->WaitUntilFinished();
 
@@ -1128,10 +1140,11 @@ TEST_F(TransferTests, MultipartUploadWithMetadataTest)
     //just make sure we don't fail because an upload part failed. (e.g. network problems or interuptions)
     while (requestPtr->GetStatus() == TransferStatus::FAILED && retries++ < 5)
     {
-        transferManager.RetryUpload(m_mediumTestFileName, requestPtr);
+        transferManager.RetryUpload(mediumTestFileName, requestPtr);
         requestPtr->WaitUntilFinished();
     }
     ASSERT_EQ(TransferStatus::COMPLETED, requestPtr->GetStatus());
+    ASSERT_TRUE(requestPtr->GetBytesTotalSize() == requestPtr->GetBytesTransferred());
 
     // Check the metadata matches
     HeadObjectRequest headObjectRequest;
@@ -1147,7 +1160,7 @@ TEST_F(TransferTests, MultipartUploadWithMetadataTest)
     ASSERT_EQ(metadata["key2"], headObjectMetadata["key2"]);
 
     VerifyUploadedFile(transferManager,
-                       m_mediumTestFileName,
+                       mediumTestFileName,
                        GetTestBucketName(),
                        MEDIUM_FILE_KEY,
                        "text/plain",
@@ -1160,10 +1173,197 @@ TEST_F(TransferTests, BadFileTest)
     transferManagerConfig.s3Client = m_s3Client;
     TransferManager transferManager(transferManagerConfig);
 
-    std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(m_nonsenseFileName, GetTestBucketName(), MEDIUM_FILE_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
+    std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(MakeFilePath( NONSENSE_FILE_NAME ), GetTestBucketName(), MEDIUM_FILE_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
     requestPtr->WaitUntilFinished();
 
     ASSERT_EQ(TransferStatus::FAILED, requestPtr->GetStatus());
 }
 
+TEST_F(TransferTests, TransferManager_CancelAndRetryDownloadTest)
+{
+    Aws::String cancelTestFileName = MakeFilePath( CANCEL_TEST_FILE_NAME );;
+    ScopedTestFile testFile(cancelTestFileName, CANCEL_TEST_SIZE, testString);
+
+    if (EmptyBucket(GetTestBucketName()))
+    {
+        WaitForBucketToEmpty(GetTestBucketName());
+    }
+
+    {
+        TransferManagerConfiguration uploadConfig;
+        uploadConfig.s3Client = m_s3Client;
+        TransferManager transferManager(uploadConfig);
+
+        std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(cancelTestFileName, GetTestBucketName(), CANCEL_FILE_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
+
+        uint64_t fileSize = requestPtr->GetBytesTotalSize();
+        ASSERT_EQ(fileSize, CANCEL_TEST_SIZE / testStrLen * testStrLen);
+        requestPtr->WaitUntilFinished();
+
+        ASSERT_EQ(TransferStatus::COMPLETED, requestPtr->GetStatus()); 
+    }
+
+    {
+        bool retryInProgress = false;
+        bool completedPartsStayedCompletedDuringRetry = true;
+        bool completionCheckDone = false;
+
+        TransferManagerConfiguration downloadConfig;
+        downloadConfig.s3Client = m_s3Client;
+        downloadConfig.transferStatusUpdatedCallback = 
+            [&](const TransferManager*, const TransferHandle& handle)
+            {
+                if (!retryInProgress && handle.GetCompletedParts().size() >= 15 &&  handle.GetStatus() != TransferStatus::CANCELED)
+                {
+                    const_cast<TransferHandle&>(handle).Cancel();
+                }
+                else if (retryInProgress)
+                {
+                    if (handle.GetStatus() == TransferStatus::IN_PROGRESS && completedPartsStayedCompletedDuringRetry)
+                    {
+                        completionCheckDone = true;
+                        //this should NEVER rise above 15 or we had some completed parts get retried too.
+                        completedPartsStayedCompletedDuringRetry = handle.GetPendingParts().size() <= 15; 
+                    }
+                }
+            };
+
+        TransferManager transferManager(downloadConfig);
+        std::shared_ptr<TransferHandle> requestPtr = transferManager.DownloadFile(GetTestBucketName(), CANCEL_FILE_KEY, MakeDownloadFileName(cancelTestFileName));
+
+        requestPtr->WaitUntilFinished();
+
+        //if this is the case, the request actually failed before we could cancel it and we need to try again.
+        while (requestPtr->GetCompletedParts().size() < 15u)
+        {        
+            requestPtr = transferManager.RetryDownload(requestPtr); 
+            requestPtr->WaitUntilFinished();
+        }
+
+        ASSERT_EQ(TransferStatus::CANCELED, requestPtr->GetStatus());    
+        ASSERT_TRUE(15u <= requestPtr->GetCompletedParts().size()); 
+        ASSERT_EQ(0u, requestPtr->GetPendingParts().size());
+        ASSERT_TRUE(15u >= requestPtr->GetFailedParts().size()); //some may have been in flight at cancelation time.
+        ASSERT_STREQ("text/plain", requestPtr->GetContentType().c_str());
+
+        retryInProgress = true;
+        requestPtr = transferManager.RetryDownload(requestPtr);
+        requestPtr->WaitUntilFinished();
+
+        size_t retries = 0;
+        //just make sure we don't fail because a download part failed. (e.g. network problems or interuptions)
+        while (requestPtr->GetStatus() == TransferStatus::FAILED && retries++ < 5)
+        {
+            transferManager.RetryDownload(requestPtr);
+            requestPtr->WaitUntilFinished();
+        }
+
+        ASSERT_EQ(TransferStatus::COMPLETED, requestPtr->GetStatus());
+        ASSERT_EQ(30u, requestPtr->GetCompletedParts().size());
+        ASSERT_TRUE(completionCheckDone);
+        ASSERT_TRUE(completedPartsStayedCompletedDuringRetry);
+        ASSERT_STREQ("text/plain", requestPtr->GetContentType().c_str());
+
+        ASSERT_TRUE(requestPtr->GetBytesTotalSize() == requestPtr->GetBytesTransferred());
+
+        ASSERT_TRUE(AreFilesSame(MakeDownloadFileName(cancelTestFileName), cancelTestFileName));
+    }
+}
+/*
+TEST_F(TransferTests, TransferManager_MediumVersionedTest)
+{
+    {
+        VersioningConfiguration versionConfig;
+        versionConfig.SetStatus(Aws::S3::Model::BucketVersioningStatus::Enabled);
+
+        PutBucketVersioningRequest versionBucketRequest;
+        versionBucketRequest.SetBucket(GetTestBucketName());
+        versionBucketRequest.SetVersioningConfiguration(versionConfig);
+
+        auto setVersioningOutcome = m_s3Client->PutBucketVersioning(versionBucketRequest);
+        EXPECT_TRUE(setVersioningOutcome.IsSuccess());
+    }
+
+    Aws::String mediumTestFileName = MakeFilePath( MEDIUM_TEST_FILE_NAME );
+    ScopedTestFile testFile(mediumTestFileName, MEDIUM_TEST_SIZE, testString);
+
+    if (EmptyBucket(GetTestBucketName()))
+    {
+        WaitForBucketToEmpty(GetTestBucketName());
+    }
+
+    GetObjectRequest getObjectRequest;
+    getObjectRequest.SetBucket(GetTestBucketName());
+    getObjectRequest.SetKey(MEDIUM_FILE_KEY);
+
+    GetObjectOutcome getObjectOutcome = m_s3Client->GetObject(getObjectRequest);
+    EXPECT_FALSE(getObjectOutcome.IsSuccess());
+
+    TransferManagerConfiguration transferManagerConfig;
+    transferManagerConfig.s3Client = m_s3Client;
+
+    TransferManager transferManager(transferManagerConfig);
+
+    uint32_t uploadCount = 0;
+    while(uploadCount < 3)
+    {
+        std::shared_ptr<TransferHandle> requestPtr = transferManager.UploadFile(mediumTestFileName, GetTestBucketName(), MEDIUM_FILE_KEY, "text/plain", Aws::Map<Aws::String, Aws::String>());
+
+        ASSERT_EQ(true, requestPtr->ShouldContinue());
+        ASSERT_EQ(TransferDirection::UPLOAD, requestPtr->GetTransferDirection());
+        ASSERT_STREQ(mediumTestFileName.c_str(), requestPtr->GetTargetFilePath().c_str());    
+        requestPtr->WaitUntilFinished();
+
+        size_t retries = 0;
+        //just make sure we don't fail because a the put object failed. (e.g. network problems or interuptions)
+        while (requestPtr->GetStatus() == TransferStatus::FAILED && retries++ < 5)
+        {
+            transferManager.RetryUpload(mediumTestFileName, requestPtr);
+            requestPtr->WaitUntilFinished();
+        }
+
+        ASSERT_TRUE(requestPtr->IsMultipart());
+        ASSERT_FALSE(requestPtr->GetMultiPartId().empty());
+        ASSERT_EQ(TransferStatus::COMPLETED, requestPtr->GetStatus());
+        ASSERT_EQ(PARTS_IN_MEDIUM_TEST, requestPtr->GetCompletedParts().size()); // Should be 2
+        ASSERT_EQ(0u, requestPtr->GetFailedParts().size());
+        ASSERT_EQ(0u, requestPtr->GetPendingParts().size());
+        ASSERT_EQ(0u, requestPtr->GetQueuedParts().size());
+        ASSERT_STREQ("text/plain", requestPtr->GetContentType().c_str());
+
+        uint64_t fileSize = requestPtr->GetBytesTotalSize();
+        ASSERT_TRUE(fileSize == MEDIUM_TEST_SIZE / testStrLen * testStrLen);
+        ASSERT_TRUE(fileSize == requestPtr->GetBytesTransferred());
+
+        HeadObjectRequest headObjectRequest;
+        headObjectRequest.WithBucket(GetTestBucketName())
+            .WithKey(MEDIUM_FILE_KEY);
+
+        auto outcome = m_s3Client->HeadObject(headObjectRequest);
+        ASSERT_TRUE(outcome.IsSuccess());
+        ASSERT_STREQ(requestPtr->GetContentType().c_str(), outcome.GetResult().GetContentType().c_str());
+
+        uploadCount++;
+    }
+
+    VerifyUploadedFile(transferManager,
+                       mediumTestFileName,
+                       GetTestBucketName(),
+                       MEDIUM_FILE_KEY,
+                       "text/plain",
+                       Aws::Map<Aws::String, Aws::String>());
+
+    {
+        VersioningConfiguration versionConfig;
+        versionConfig.SetStatus(Aws::S3::Model::BucketVersioningStatus::Suspended);
+
+        PutBucketVersioningRequest versionBucketRequest;
+        versionBucketRequest.SetBucket(GetTestBucketName());
+        versionBucketRequest.SetVersioningConfiguration(versionConfig);
+
+        auto setVersioningOutcome = m_s3Client->PutBucketVersioning(versionBucketRequest);
+        EXPECT_TRUE(setVersioningOutcome.IsSuccess());
+    }
+}
+*/
 }

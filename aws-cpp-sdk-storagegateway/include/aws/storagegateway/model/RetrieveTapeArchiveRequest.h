@@ -37,6 +37,7 @@ namespace Model
 
     Aws::Http::HeaderValueCollection GetRequestSpecificHeaders() const override;
 
+
     /**
      * <p>The Amazon Resource Name (ARN) of the virtual tape you want to retrieve from
      * the virtual tape shelf (VTS).</p>
@@ -83,7 +84,7 @@ namespace Model
      * <p>The Amazon Resource Name (ARN) of the gateway you want to retrieve the
      * virtual tape to. Use the <a>ListGateways</a> operation to return a list of
      * gateways for your account and region.</p> <p>You retrieve archived virtual tapes
-     * to only one gateway and the gateway must be a gateway-VTL.</p>
+     * to only one gateway and the gateway must be a tape gateway.</p>
      */
     inline const Aws::String& GetGatewayARN() const{ return m_gatewayARN; }
 
@@ -91,7 +92,7 @@ namespace Model
      * <p>The Amazon Resource Name (ARN) of the gateway you want to retrieve the
      * virtual tape to. Use the <a>ListGateways</a> operation to return a list of
      * gateways for your account and region.</p> <p>You retrieve archived virtual tapes
-     * to only one gateway and the gateway must be a gateway-VTL.</p>
+     * to only one gateway and the gateway must be a tape gateway.</p>
      */
     inline void SetGatewayARN(const Aws::String& value) { m_gatewayARNHasBeenSet = true; m_gatewayARN = value; }
 
@@ -99,7 +100,7 @@ namespace Model
      * <p>The Amazon Resource Name (ARN) of the gateway you want to retrieve the
      * virtual tape to. Use the <a>ListGateways</a> operation to return a list of
      * gateways for your account and region.</p> <p>You retrieve archived virtual tapes
-     * to only one gateway and the gateway must be a gateway-VTL.</p>
+     * to only one gateway and the gateway must be a tape gateway.</p>
      */
     inline void SetGatewayARN(Aws::String&& value) { m_gatewayARNHasBeenSet = true; m_gatewayARN = value; }
 
@@ -107,7 +108,7 @@ namespace Model
      * <p>The Amazon Resource Name (ARN) of the gateway you want to retrieve the
      * virtual tape to. Use the <a>ListGateways</a> operation to return a list of
      * gateways for your account and region.</p> <p>You retrieve archived virtual tapes
-     * to only one gateway and the gateway must be a gateway-VTL.</p>
+     * to only one gateway and the gateway must be a tape gateway.</p>
      */
     inline void SetGatewayARN(const char* value) { m_gatewayARNHasBeenSet = true; m_gatewayARN.assign(value); }
 
@@ -115,7 +116,7 @@ namespace Model
      * <p>The Amazon Resource Name (ARN) of the gateway you want to retrieve the
      * virtual tape to. Use the <a>ListGateways</a> operation to return a list of
      * gateways for your account and region.</p> <p>You retrieve archived virtual tapes
-     * to only one gateway and the gateway must be a gateway-VTL.</p>
+     * to only one gateway and the gateway must be a tape gateway.</p>
      */
     inline RetrieveTapeArchiveRequest& WithGatewayARN(const Aws::String& value) { SetGatewayARN(value); return *this;}
 
@@ -123,7 +124,7 @@ namespace Model
      * <p>The Amazon Resource Name (ARN) of the gateway you want to retrieve the
      * virtual tape to. Use the <a>ListGateways</a> operation to return a list of
      * gateways for your account and region.</p> <p>You retrieve archived virtual tapes
-     * to only one gateway and the gateway must be a gateway-VTL.</p>
+     * to only one gateway and the gateway must be a tape gateway.</p>
      */
     inline RetrieveTapeArchiveRequest& WithGatewayARN(Aws::String&& value) { SetGatewayARN(value); return *this;}
 
@@ -131,7 +132,7 @@ namespace Model
      * <p>The Amazon Resource Name (ARN) of the gateway you want to retrieve the
      * virtual tape to. Use the <a>ListGateways</a> operation to return a list of
      * gateways for your account and region.</p> <p>You retrieve archived virtual tapes
-     * to only one gateway and the gateway must be a gateway-VTL.</p>
+     * to only one gateway and the gateway must be a tape gateway.</p>
      */
     inline RetrieveTapeArchiveRequest& WithGatewayARN(const char* value) { SetGatewayARN(value); return *this;}
 

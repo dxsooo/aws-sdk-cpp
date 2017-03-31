@@ -27,7 +27,8 @@ ScheduleRunRequest::ScheduleRunRequest() :
     m_devicePoolArnHasBeenSet(false),
     m_nameHasBeenSet(false),
     m_testHasBeenSet(false),
-    m_configurationHasBeenSet(false)
+    m_configurationHasBeenSet(false),
+    m_executionConfigurationHasBeenSet(false)
 {
 }
 
@@ -71,6 +72,12 @@ Aws::String ScheduleRunRequest::SerializePayload() const
 
   }
 
+  if(m_executionConfigurationHasBeenSet)
+  {
+   payload.WithObject("executionConfiguration", m_executionConfiguration.Jsonize());
+
+  }
+
   return payload.WriteReadable();
 }
 
@@ -81,6 +88,7 @@ Aws::Http::HeaderValueCollection ScheduleRunRequest::GetRequestSpecificHeaders()
   return headers;
 
 }
+
 
 
 

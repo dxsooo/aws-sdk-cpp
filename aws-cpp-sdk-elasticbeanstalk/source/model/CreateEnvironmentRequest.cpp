@@ -30,6 +30,7 @@ CreateEnvironmentRequest::CreateEnvironmentRequest() :
     m_versionLabelHasBeenSet(false),
     m_templateNameHasBeenSet(false),
     m_solutionStackNameHasBeenSet(false),
+    m_platformArnHasBeenSet(false),
     m_optionSettingsHasBeenSet(false),
     m_optionsToRemoveHasBeenSet(false)
 {
@@ -94,6 +95,11 @@ Aws::String CreateEnvironmentRequest::SerializePayload() const
     ss << "SolutionStackName=" << StringUtils::URLEncode(m_solutionStackName.c_str()) << "&";
   }
 
+  if(m_platformArnHasBeenSet)
+  {
+    ss << "PlatformArn=" << StringUtils::URLEncode(m_platformArn.c_str()) << "&";
+  }
+
   if(m_optionSettingsHasBeenSet)
   {
     unsigned optionSettingsCount = 1;
@@ -118,3 +124,8 @@ Aws::String CreateEnvironmentRequest::SerializePayload() const
   return ss.str();
 }
 
+
+void  CreateEnvironmentRequest::DumpBodyToUrl(Aws::Http::URI& uri ) const
+{
+  uri.SetQueryString(SerializePayload());
+}
